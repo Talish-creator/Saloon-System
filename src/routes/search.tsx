@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { MarketplaceHeader } from "@/components/marketplace-chrome";
 import { VenueMap } from "@/components/venue-map";
 import { venues } from "@/lib/venues";
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/search")({
 
 function SearchResults() {
   const { q } = Route.useSearch();
+  const [page, setPage] = useState(1);
   const query = (q || "").trim().toLowerCase();
   const words = query.split(/\s+/).filter(Boolean);
   
@@ -47,6 +49,7 @@ function SearchResults() {
   // Fallback if still empty: show all venues so user always sees options
   const isFallback = results.length === 0;
   const displayResults = isFallback ? venues : results;
+  const visibleResults = displayResults.slice(0, page * 20);
 
   return (
     <div className="min-h-screen bg-white text-zinc-900 flex flex-col" style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}>
@@ -67,7 +70,7 @@ function SearchResults() {
           </div>
           
           <div className="space-y-6">
-            {displayResults.map(v => (
+            {visibleResults.map((v) => (
               <div key={v.slug} className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition">
                 <Link to="/venue/$slug" params={{ slug: v.slug }} className="block">
                   <div className="flex aspect-[21/9] bg-gray-100 overflow-hidden relative">
@@ -98,7 +101,7 @@ function SearchResults() {
                             to="/booking/$slug"
                             params={{ slug: v.slug }}
                             search={{ services: s.name }}
-                            className="text-xs font-semibold bg-zinc-900 text-white px-4 py-2 rounded-full hover:bg-zinc-800 transition"
+                            className="rounded-full bg-zinc-900 text-white px-3.5 py-1.5 text-xs font-semibold hover:bg-zinc-800 transition"
                           >
                             Book
                           </Link>
@@ -115,6 +118,17 @@ function SearchResults() {
               </div>
             ))}
           </div>
+
+          {visibleResults.length < displayResults.length && (
+            <div className="mt-8 text-center">
+              <button
+                onClick={() => setPage((prev) => prev + 1)}
+                className="rounded-full bg-zinc-900 text-white px-6 py-3 text-sm font-bold hover:bg-zinc-800 transition shadow-sm"
+              >
+                Load More Venues ({visibleResults.length} of {displayResults.length})
+              </button>
+            </div>
+          )}
         </div>
         
         {/* Right Pane: Map */}

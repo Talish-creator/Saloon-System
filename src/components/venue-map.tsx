@@ -53,13 +53,13 @@ export function VenueMap({ venueName, address, city = "Dubai", country = "United
   const displayPins = pins && pins.length > 0 ? pins : [{ name: venueName || "Venue Location", address, rating: 4.8 }];
 
   return (
-    <div className="w-full rounded-3xl overflow-hidden border border-gray-200 shadow-md bg-zinc-100 relative" style={{ height }}>
+    <div className="w-full h-full min-h-[400px] rounded-3xl overflow-hidden border border-gray-200 shadow-md bg-zinc-100 relative flex flex-col" style={{ height: height || "100%" }}>
       {/* Map iframe */}
       <iframe
         title="Venue Map"
         width="100%"
         height="100%"
-        className="w-full h-full border-0 filter grayscale-[15%] contrast-[105%]"
+        className="w-full h-full flex-1 border-0 filter grayscale-[15%] contrast-[105%]"
         src={embedUrl}
         loading="lazy"
       />

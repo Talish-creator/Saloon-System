@@ -118,7 +118,7 @@ function SearchResults() {
         </div>
         
         {/* Right Pane: Map */}
-        <div className="hidden md:block flex-1 bg-zinc-100 p-4 h-full">
+        <div className="hidden md:flex flex-col flex-1 bg-zinc-100 p-4 h-full min-h-0">
           <VenueMap
             address={displayResults[0]?.address || "Downtown Dubai, Dubai, United Arab Emirates"}
             city={displayResults[0]?.city || "Dubai"}

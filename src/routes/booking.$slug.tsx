@@ -206,25 +206,25 @@ function BookingPage() {
           </button>
 
           {/* Stepper */}
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-4 mb-5">
             {(["details", "payment", "confirm"] as Step[]).map((s, i) => {
               const active = step === s;
               const done = (step === "payment" && s === "details") || (step === "confirm" && s !== "confirm");
               return (
-                <div key={s} className="flex items-center gap-3">
-                  <div className={`h-8 w-8 rounded-full grid place-items-center text-sm font-semibold border ${
+                <div key={s} className="flex items-center gap-2">
+                  <div className={`h-6 w-6 rounded-full grid place-items-center text-xs font-semibold border ${
                     active ? "bg-zinc-900 text-white border-zinc-900" :
                     done ? "bg-emerald-500 text-white border-emerald-500" :
                     "bg-white text-zinc-500 border-zinc-200"
-                  }`}>{done ? <Check className="h-4 w-4" /> : i + 1}</div>
-                  <span className={`text-sm font-medium capitalize ${active ? "text-zinc-900" : "text-zinc-500"}`}>{s === "confirm" ? "Confirmation" : s}</span>
-                  {i < 2 && <div className="hidden sm:block w-12 h-px bg-zinc-200" />}
+                  }`}>{done ? <Check className="h-3 w-3" /> : i + 1}</div>
+                  <span className={`text-xs sm:text-sm font-medium capitalize ${active ? "text-zinc-900" : "text-zinc-500"}`}>{s === "confirm" ? "Confirmation" : s}</span>
+                  {i < 2 && <div className="hidden sm:block w-8 sm:w-12 h-px bg-zinc-200" />}
                 </div>
               );
             })}
           </div>
 
-          <div className="grid lg:grid-cols-[1fr_380px] gap-8 pb-24">
+          <div className="grid lg:grid-cols-[1fr_320px] gap-6 pb-12">
             {/* Left */}
             <div>
               <AnimatePresence mode="wait">
@@ -234,15 +234,15 @@ function BookingPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.25 }}
-                  className="bg-white rounded-3xl border border-gray-200 p-6 sm:p-8"
+                  className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6"
                 >
                   {step === "details" && (
                     <>
-                      <h1 className="text-2xl font-extrabold tracking-tight mb-1">Appointment details</h1>
-                      <p className="text-sm text-zinc-500 mb-6">Choose services, pick a slot and add your contact info.</p>
+                      <h1 className="text-xl font-extrabold tracking-tight mb-1">Appointment details</h1>
+                      <p className="text-sm text-zinc-500 mb-4">Choose services, pick a slot and add your contact info.</p>
 
-                      <h2 className="text-sm font-bold uppercase tracking-wide text-zinc-500 mb-3">Services</h2>
-                      <div className="space-y-2 mb-6">
+                      <h2 className="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Services</h2>
+                      <div className="space-y-1.5 mb-4">
                         {venue.services.map((s) => {
                           const isSel = selectedNames.includes(s.name);
                           return (
@@ -253,16 +253,16 @@ function BookingPage() {
                                   prev.includes(s.name) ? prev.filter((n) => n !== s.name) : [...prev, s.name],
                                 )
                               }
-                              className={`w-full flex items-center gap-3 text-left rounded-2xl border p-4 transition ${
+                              className={`w-full flex items-center gap-3 text-left rounded-xl border p-3 transition ${
                                 isSel ? "border-zinc-900 bg-zinc-50" : "border-gray-200 hover:border-zinc-400"
                               }`}
                             >
-                              <div className={`h-6 w-6 rounded-md grid place-items-center border-2 ${isSel ? "bg-zinc-900 border-zinc-900 text-white" : "border-zinc-300"}`}>
-                                {isSel && <Check className="h-4 w-4" />}
+                              <div className={`h-5 w-5 rounded-md grid place-items-center border-2 shrink-0 ${isSel ? "bg-zinc-900 border-zinc-900 text-white" : "border-zinc-300"}`}>
+                                {isSel && <Check className="h-3 w-3" />}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="font-semibold">{s.name}</div>
-                                <div className="text-xs text-zinc-500">{s.duration} · {s.category}</div>
+                                <div className="text-sm font-semibold">{s.name}</div>
+                                <div className="text-[11px] text-zinc-500">{s.duration} · {s.category}</div>
                               </div>
                               <div className="font-semibold text-sm whitespace-nowrap">{s.price}</div>
                             </button>
@@ -271,30 +271,30 @@ function BookingPage() {
                       </div>
                       {errors.services && <p className="text-sm text-rose-600 -mt-3 mb-4">{errors.services}</p>}
 
-                      <h2 className="text-sm font-bold uppercase tracking-wide text-zinc-500 mb-3">Date</h2>
+                      <h2 className="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Date</h2>
                       <div className="flex gap-2 overflow-x-auto pb-2 mb-1">
                         {dateOptions.map((d) => (
                           <button
                             key={d.value}
                             onClick={() => setDate(d.value)}
-                            className={`shrink-0 rounded-2xl border px-4 py-3 text-center min-w-[80px] ${
+                            className={`shrink-0 rounded-xl border px-3 py-2 text-center min-w-[70px] ${
                               date === d.value ? "border-zinc-900 bg-zinc-900 text-white" : "border-gray-200 hover:border-zinc-400"
                             }`}
                           >
-                            <div className="text-xs font-medium">{d.label}</div>
-                            <div className="text-sm font-bold mt-0.5">{d.sub}</div>
+                            <div className="text-[11px] font-medium leading-none mb-1">{d.label}</div>
+                            <div className="text-xs font-bold leading-none">{d.sub}</div>
                           </button>
                         ))}
                       </div>
-                      {errors.date && <p className="text-sm text-rose-600 mb-3">{errors.date}</p>}
+                      {errors.date && <p className="text-xs text-rose-600 mb-2">{errors.date}</p>}
 
-                      <h2 className="text-sm font-bold uppercase tracking-wide text-zinc-500 mt-6 mb-3">Time</h2>
+                      <h2 className="text-xs font-bold uppercase tracking-wide text-zinc-500 mt-4 mb-2">Time</h2>
                       <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-1">
                         {timeOptions.map((t) => (
                           <button
                             key={t}
                             onClick={() => setTime(t)}
-                            className={`rounded-xl border py-2 text-sm font-medium ${
+                            className={`rounded-lg border py-1.5 text-xs font-medium ${
                               time === t ? "border-zinc-900 bg-zinc-900 text-white" : "border-gray-200 hover:border-zinc-400"
                             }`}
                           >
@@ -302,10 +302,10 @@ function BookingPage() {
                           </button>
                         ))}
                       </div>
-                      {errors.time && <p className="text-sm text-rose-600 mb-3">{errors.time}</p>}
+                      {errors.time && <p className="text-xs text-rose-600 mb-2">{errors.time}</p>}
 
-                      <h2 className="text-sm font-bold uppercase tracking-wide text-zinc-500 mt-6 mb-3">Your details</h2>
-                      <div className="grid sm:grid-cols-2 gap-3">
+                      <h2 className="text-xs font-bold uppercase tracking-wide text-zinc-500 mt-4 mb-2">Your details</h2>
+                      <div className="grid sm:grid-cols-2 gap-2.5">
                         <Field label="Full name" icon={<User className="h-4 w-4" />} value={name} onChange={setName} error={errors.name} />
                         <Field label="Email" icon={<Mail className="h-4 w-4" />} value={email} onChange={setEmail} error={errors.email} />
                         <Field label="Phone" icon={<Phone className="h-4 w-4" />} value={phone} onChange={setPhone} error={errors.phone} />
@@ -315,7 +315,7 @@ function BookingPage() {
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             maxLength={500}
-                            rows={3}
+                            rows={2}
                             className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
                             placeholder="Anything the salon should know?"
                           />
@@ -324,7 +324,7 @@ function BookingPage() {
 
                       <button
                         onClick={() => validateDetails() && setStep("payment")}
-                        className="mt-8 w-full rounded-full bg-zinc-900 text-white py-3.5 font-semibold hover:bg-zinc-800"
+                        className="mt-5 w-full rounded-full bg-zinc-900 text-white py-2.5 text-sm font-semibold hover:bg-zinc-800"
                       >
                         Continue to payment
                       </button>
@@ -488,9 +488,9 @@ function BookingPage() {
 
             {/* Right summary */}
             <aside className="lg:sticky lg:top-24 self-start">
-              <div className="rounded-3xl border border-gray-200 bg-white p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <img src={venue.images[0]} className="h-14 w-14 rounded-xl object-cover" alt="" />
+              <div className="rounded-2xl border border-gray-200 bg-white p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <img src={venue.images[0]} className="h-10 w-10 rounded-lg object-cover shrink-0" alt="" />
                   <div className="min-w-0">
                     <div className="font-bold truncate">{venue.name}</div>
                     <div className="flex items-center gap-1 text-xs">

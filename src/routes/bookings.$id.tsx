@@ -137,9 +137,22 @@ function ReceiptPage() {
               <p className="text-zinc-500 mt-1">
                 Reference <span className="font-mono font-semibold text-zinc-900">{b.bookingId}</span>
               </p>
-              <span className="inline-block mt-3 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1">
-                {b.status}
-              </span>
+              <div className="flex justify-center gap-2 mt-3">
+                <span
+                  className={`inline-block px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                    b.paymentMethod === "online" || b.status.toLowerCase().includes("paid")
+                      ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                      : "bg-amber-100 text-amber-800 border border-amber-200"
+                  }`}
+                >
+                  {b.paymentMethod === "online" || b.status.toLowerCase().includes("paid")
+                    ? "✓ PAID"
+                    : "• PAYMENT PENDING"}
+                </span>
+                <span className="inline-block px-3.5 py-1 rounded-full bg-zinc-100 text-zinc-700 text-xs font-semibold border border-gray-200">
+                  {b.status}
+                </span>
+              </div>
             </div>
 
             <div className="p-6 sm:p-8 space-y-6">

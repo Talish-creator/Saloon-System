@@ -41,6 +41,7 @@ function BookingsPage() {
   const [q, setQ] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<string | null>(null);
+  const [selectedReceipt, setSelectedReceipt] = useState<StoredBooking | null>(null);
 
   useEffect(() => {
     setBookings(loadBookings());
@@ -224,13 +225,12 @@ function BookingsPage() {
                           <span className="text-zinc-400">· {b.paymentMethod === "online" ? "Paid online" : "Pay at salon"}</span>
                         </div>
                         <div className="flex gap-2">
-                          <Link
-                            to="/bookings/$id"
-                            params={{ id: b.bookingId }}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold hover:bg-gray-50"
+                          <button
+                            onClick={() => setSelectedReceipt(b)}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold hover:bg-gray-50 transition"
                           >
                             <Receipt className="h-4 w-4" /> Receipt
-                          </Link>
+                          </button>
                           {bucketOf(b) === "upcoming" && (
                             <button
                               onClick={() => onCancel(b.bookingId)}
@@ -249,6 +249,101 @@ function BookingsPage() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Interactive Receipt Modal */}
+      <AnimatePresence>
+        {selectedReceipt && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative border border-gray-100"
+            >
+              <button
+                onClick={() => setSelectedReceipt(null)}
+                className="absolute top-5 right-5 h-9 w-9 rounded-full bg-gray-100 grid place-items-center text-zinc-500 hover:bg-gray-200 transition"
+              >
+                ✕
+              </button>
+
+              {/* Header Badge & Title */}
+              <div className="text-center pb-6 border-b border-gray-100">
+                <span
+                  className={`inline-block px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 ${
+                    selectedReceipt.paymentMethod === "online" || selectedReceipt.status.toLowerCase().includes("paid")
+                      ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                      : "bg-amber-100 text-amber-800 border border-amber-200"
+                  }`}
+                >
+                  {selectedReceipt.paymentMethod === "online" || selectedReceipt.status.toLowerCase().includes("paid")
+                    ? "✓ PAID"
+                    : "• PAYMENT PENDING"}
+                </span>
+                <h2 className="text-2xl font-extrabold text-zinc-900">Official Receipt</h2>
+                <p className="text-xs text-zinc-500 font-mono mt-1">Invoice #{selectedReceipt.bookingId}</p>
+              </div>
+
+              {/* Customer Information */}
+              <div className="py-6 space-y-4 border-b border-gray-100 text-sm">
+                <div className="bg-zinc-50 rounded-2xl p-4 border border-gray-200">
+                  <div className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">Customer Details</div>
+                  <div className="font-bold text-zinc-900 text-base">{selectedReceipt.customer.name}</div>
+                  <div className="text-zinc-600">{selectedReceipt.customer.email}</div>
+                  <div className="text-zinc-500 text-xs mt-0.5">{selectedReceipt.customer.phone}</div>
+                </div>
+
+                {/* Salon Information */}
+                <div className="flex items-start gap-3 bg-zinc-50 rounded-2xl p-4 border border-gray-200">
+                  {selectedReceipt.venueImage && (
+                    <img src={selectedReceipt.venueImage} className="h-12 w-12 rounded-xl object-cover shrink-0" alt="" />
+                  )}
+                  <div className="min-w-0">
+                    <div className="font-bold text-zinc-900 truncate">{selectedReceipt.venueName}</div>
+                    <div className="text-xs text-zinc-500 truncate">{selectedReceipt.venueAddress}</div>
+                    <div className="text-xs text-zinc-400 mt-1">{selectedReceipt.date} · {selectedReceipt.time}</div>
+                  </div>
+                </div>
+
+                {/* Billed Services */}
+                <div className="space-y-2 pt-2">
+                  <div className="text-xs font-bold uppercase tracking-wider text-zinc-400">Services Billed</div>
+                  {selectedReceipt.services.map((s, i) => (
+                    <div key={i} className="flex justify-between items-center py-2 border-b border-gray-100">
+                      <div>
+                        <div className="font-semibold text-zinc-800">{s.name}</div>
+                        <div className="text-xs text-zinc-400">{s.duration}</div>
+                      </div>
+                      <div className="font-bold text-zinc-900">{s.price}</div>
+                    </div>
+                  ))}
+                  <div className="flex justify-between items-center pt-3 font-extrabold text-base text-zinc-900">
+                    <span>Total Billed</span>
+                    <span className="text-xl font-extrabold text-zinc-900">{selectedReceipt.total}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="pt-6 flex flex-col sm:flex-row gap-3">
+                <Link
+                  to="/bookings/$id"
+                  params={{ id: selectedReceipt.bookingId }}
+                  className="flex-1 text-center rounded-full bg-zinc-900 text-white py-3 text-sm font-semibold hover:bg-zinc-800 transition"
+                >
+                  View Full Invoice & Print
+                </Link>
+                <button
+                  onClick={() => setSelectedReceipt(null)}
+                  className="rounded-full border border-gray-200 px-6 py-3 text-sm font-semibold text-zinc-700 hover:bg-gray-50 transition"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <MarketplaceFooter />
     </div>

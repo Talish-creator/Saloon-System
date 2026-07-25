@@ -26,8 +26,8 @@ export const Route = createFileRoute("/marketplace")({
 const treatmentTabs = [
   { key: "all", label: "All", count: null },
   { key: "treatments", label: "Treatments", count: "99+" },
-  { key: "venues", label: "Venues", count: 398 },
-  { key: "professionals", label: "Professionals", count: 128 },
+  { key: "venues", label: "Venues", count: "1,000" },
+  { key: "professionals", label: "Professionals", count: "500+" },
 ] as const;
 
 const treatmentResults = [
@@ -179,7 +179,7 @@ function Marketplace() {
                     ))}
                   </div>
                   <div className="max-h-80 overflow-auto">
-                    {tab === "treatments" || tab === "all" ? (
+                    {tab === "treatments" ? (
                       <div className="grid grid-cols-1">
                         <div className="px-3 pt-1 pb-2 text-[11px] font-semibold uppercase tracking-wide text-zinc-500">Popular treatments</div>
                         {treatmentCategories.map((t) => (
@@ -198,16 +198,37 @@ function Marketplace() {
                           </Link>
                         ))}
                       </div>
-                    ) : (
-                      treatmentResults.map((r) => (
-                        <div key={r.name} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 cursor-pointer">
-                          <img src={r.img} alt="" className="h-9 w-9 rounded-full object-cover" />
+                    ) : tab === "venues" ? (
+                      venues.slice(0, 15).map((v) => (
+                        <Link
+                          key={v.slug}
+                          to="/venue/$slug"
+                          params={{ slug: v.slug }}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 cursor-pointer block text-left"
+                        >
+                          <img src={v.images[0]} alt="" className="h-9 w-9 rounded-full object-cover shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-sm truncate">{r.name}</div>
-                            <div className="text-xs text-zinc-500 truncate">{r.meta}</div>
+                            <div className="font-semibold text-sm truncate">{v.name}</div>
+                            <div className="text-xs text-zinc-500 truncate">{v.category} · {v.city}, {v.country}</div>
                           </div>
-                          <div className="text-xs text-zinc-500">{r.distance}</div>
-                        </div>
+                          <div className="text-xs text-zinc-500 shrink-0">{v.distanceKm} mi</div>
+                        </Link>
+                      ))
+                    ) : (
+                      venues.slice(0, 12).map((v) => (
+                        <Link
+                          key={v.slug}
+                          to="/venue/$slug"
+                          params={{ slug: v.slug }}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 cursor-pointer block text-left"
+                        >
+                          <img src={v.team[0]?.img || v.images[0]} alt="" className="h-9 w-9 rounded-full object-cover shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-sm truncate">{v.team[0]?.name || "Pro Stylist"} ({v.name})</div>
+                            <div className="text-xs text-zinc-500 truncate">{v.team[0]?.role || "Therapist"} · {v.city}, {v.country}</div>
+                          </div>
+                          <div className="text-xs text-zinc-500 shrink-0">{v.distanceKm} mi</div>
+                        </Link>
                       ))
                     )}
                   </div>

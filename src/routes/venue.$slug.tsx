@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, MapPin, Clock, Share, Heart, ChevronRight, Check } from "lucide-react";
 import { MarketplaceHeader, MarketplaceFooter } from "@/components/marketplace-chrome";
+import { VenueMap } from "@/components/venue-map";
 import { findVenue, venues } from "@/lib/venues";
 
 export const Route = createFileRoute("/venue/$slug")({
@@ -357,6 +358,23 @@ function VenuePage() {
               </div>
             </div>
           </aside>
+        </div>
+      </section>
+
+      {/* Location & Map Section */}
+      <section className="px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-2xl font-extrabold tracking-tight mb-2 flex items-center gap-2">
+            <MapPin className="h-6 w-6 text-zinc-900" /> Shop Location & Map
+          </h2>
+          <p className="text-zinc-600 text-sm mb-6">{venue.address}</p>
+          <VenueMap
+            venueName={venue.name}
+            address={venue.address}
+            city={venue.city}
+            country={venue.country}
+            height="400px"
+          />
         </div>
       </section>
 

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MarketplaceHeader } from "@/components/marketplace-chrome";
+import { VenueMap } from "@/components/venue-map";
 import { venues } from "@/lib/venues";
 import { MapPin, Star } from "lucide-react";
 
@@ -117,48 +118,21 @@ function SearchResults() {
         </div>
         
         {/* Right Pane: Map */}
-        <div className="hidden md:block flex-1 bg-zinc-200 relative h-full">
-          {/* Mock Map Background */}
-          <div className="absolute inset-0" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1600&h=1200')", backgroundSize: "cover", backgroundPosition: "center", opacity: 0.6 }}></div>
-          <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
-
-          {/* Dummy Map Pins */}
-          {displayResults.map((v, i) => {
-            // Generate some deterministic but scattered positions for the demo pins
-            const top = 15 + ((v.name.length * 7 + i * 23) % 70);
-            const left = 15 + ((v.name.length * 11 + i * 37) % 70);
-            
-            return (
-              <Link
-                key={v.slug}
-                to="/venue/$slug" 
-                params={{ slug: v.slug }}
-                className="absolute transform -translate-x-1/2 -translate-y-full hover:z-20 group" 
-                style={{ top: `${top}%`, left: `${left}%` }}
-              >
-                {/* Tooltip */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-white rounded-xl shadow-xl p-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition origin-bottom pointer-events-none">
-                  <div className="font-bold text-sm truncate">{v.name}</div>
-                  <div className="flex items-center gap-1 text-xs text-zinc-500 mt-0.5">
-                    <Star className="h-3 w-3 fill-amber-400 text-amber-400"/> {v.rating.toFixed(1)} ({v.reviews})
-                  </div>
-                  <div className="text-[10px] text-zinc-400 mt-1 truncate">{v.category}</div>
-                </div>
-                
-                {/* Pin */}
-                <div className="bg-zinc-900 text-white rounded-full px-3 py-1.5 font-bold text-sm shadow-lg flex items-center gap-1 border-2 border-white cursor-pointer group-hover:bg-indigo-600 transition group-hover:scale-105">
-                  <Star className="h-3.5 w-3.5 fill-white text-white" /> {v.rating.toFixed(1)}
-                </div>
-                <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-zinc-900 group-hover:border-t-indigo-600 mx-auto -mt-[2px] transition-colors"></div>
-              </Link>
-            );
-          })}
-          
-          {/* Mock Map Controls */}
-          <div className="absolute right-6 bottom-8 flex flex-col gap-2">
-            <button className="h-10 w-10 bg-white rounded-xl shadow-md flex items-center justify-center hover:bg-gray-50 text-zinc-700 font-bold text-xl">+</button>
-            <button className="h-10 w-10 bg-white rounded-xl shadow-md flex items-center justify-center hover:bg-gray-50 text-zinc-700 font-bold text-xl">-</button>
-          </div>
+        <div className="hidden md:block flex-1 bg-zinc-100 p-4 h-full">
+          <VenueMap
+            address={displayResults[0]?.address || "Downtown Dubai, Dubai, United Arab Emirates"}
+            city={displayResults[0]?.city || "Dubai"}
+            country={displayResults[0]?.country || "United Arab Emirates"}
+            height="100%"
+            pins={displayResults.slice(0, 10).map(v => ({
+              name: v.name,
+              rating: v.rating,
+              address: v.address,
+              city: v.city,
+              country: v.country,
+              slug: v.slug
+            }))}
+          />
         </div>
       </div>
     </div>

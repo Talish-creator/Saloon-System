@@ -4,6 +4,7 @@ import { CheckCircle2, Download, Printer, ArrowLeft, MapPin, Calendar, Clock, Cr
 import { MarketplaceHeader, MarketplaceFooter } from "@/components/marketplace-chrome";
 import { findBooking, type StoredBooking } from "@/lib/bookings-store";
 import { getBookingStatuses } from "@/lib/bookings.functions";
+import { printBookingInvoice, downloadBookingInvoice } from "@/lib/receipt-generator";
 
 export const Route = createFileRoute("/bookings/$id")({
   head: ({ params }) => ({
@@ -99,23 +100,10 @@ function ReceiptPage() {
   if (!b) throw notFound();
 
   function download() {
-    const html = receiptHtml(b!);
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `saloon-system-receipt-${b!.bookingId}.html`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    if (b) downloadBookingInvoice(b);
   }
   function printReceipt() {
-    const html = receiptHtml(b!);
-    const w = window.open("", "_blank", "width=720,height=900");
-    if (!w) return;
-    w.document.write(html);
-    w.document.close();
-    w.focus();
-    setTimeout(() => w.print(), 300);
+    if (b) printBookingInvoice(b);
   }
 
   return (

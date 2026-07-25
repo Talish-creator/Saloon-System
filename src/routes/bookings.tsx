@@ -5,6 +5,7 @@ import { Calendar, Clock, MapPin, RefreshCw, Ban, Receipt, Search, CheckCircle2,
 import { MarketplaceHeader, MarketplaceFooter } from "@/components/marketplace-chrome";
 import { loadBookings, bucketOf, updateBooking, type StoredBooking, type BookingBucket } from "@/lib/bookings-store";
 import { getBookingStatuses, cancelBooking } from "@/lib/bookings.functions";
+import { printBookingInvoice, downloadBookingInvoice } from "@/lib/receipt-generator";
 
 export const Route = createFileRoute("/bookings")({
   head: () => ({
@@ -326,16 +327,21 @@ function BookingsPage() {
 
               {/* Footer Actions */}
               <div className="pt-6 flex flex-col sm:flex-row gap-3">
-                <Link
-                  to="/bookings/$id"
-                  params={{ id: selectedReceipt.bookingId }}
-                  className="flex-1 text-center rounded-full bg-zinc-900 text-white py-3 text-sm font-semibold hover:bg-zinc-800 transition"
+                <button
+                  onClick={() => printBookingInvoice(selectedReceipt)}
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white py-3 text-sm font-bold hover:bg-zinc-800 transition shadow-sm"
                 >
-                  View Full Invoice & Print
-                </Link>
+                  🖨️ Print / Save Invoice PDF
+                </button>
+                <button
+                  onClick={() => downloadBookingInvoice(selectedReceipt)}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-200 px-5 py-3 text-sm font-semibold text-zinc-700 hover:bg-gray-50 transition"
+                >
+                  📥 Download
+                </button>
                 <button
                   onClick={() => setSelectedReceipt(null)}
-                  className="rounded-full border border-gray-200 px-6 py-3 text-sm font-semibold text-zinc-700 hover:bg-gray-50 transition"
+                  className="rounded-full border border-gray-200 px-5 py-3 text-sm font-semibold text-zinc-700 hover:bg-gray-50 transition"
                 >
                   Close
                 </button>

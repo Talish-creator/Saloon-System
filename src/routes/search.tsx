@@ -17,6 +17,7 @@ export const Route = createFileRoute("/search")({
 });
 
 function SearchResults() {
+  const { q } = Route.useSearch();
   const query = (q || "").trim().toLowerCase();
   const words = query.split(/\s+/).filter(Boolean);
   

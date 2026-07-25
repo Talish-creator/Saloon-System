@@ -196,17 +196,17 @@ function BookingPage() {
     <div className="min-h-screen bg-zinc-50 text-zinc-900" style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}>
       <MarketplaceHeader />
 
-      <div className="pt-24 px-4 sm:px-6 lg:px-8">
+      <div className="pt-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <button
             onClick={() => navigate({ to: "/venue/$slug", params: { slug: venue.slug } })}
-            className="inline-flex items-center gap-1.5 text-sm text-zinc-600 hover:text-zinc-900 mb-6"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-900 mb-3"
           >
-            <ArrowLeft className="h-4 w-4" /> Back to {venue.name}
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to {venue.name}
           </button>
 
           {/* Stepper */}
-          <div className="flex items-center gap-4 mb-5">
+          <div className="flex items-center gap-2 mb-3">
             {(["details", "payment", "confirm"] as Step[]).map((s, i) => {
               const active = step === s;
               const done = (step === "payment" && s === "details") || (step === "confirm" && s !== "confirm");
@@ -224,7 +224,7 @@ function BookingPage() {
             })}
           </div>
 
-          <div className="grid lg:grid-cols-[1fr_320px] gap-6 pb-12">
+          <div className="grid lg:grid-cols-[1fr_320px] gap-4 pb-8">
             {/* Left */}
             <div>
               <AnimatePresence mode="wait">
@@ -234,15 +234,15 @@ function BookingPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.25 }}
-                  className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6"
+                  className="bg-white rounded-2xl border border-gray-200 p-4"
                 >
                   {step === "details" && (
                     <>
-                      <h1 className="text-xl font-extrabold tracking-tight mb-1">Appointment details</h1>
-                      <p className="text-sm text-zinc-500 mb-4">Choose services, pick a slot and add your contact info.</p>
+                      <h1 className="text-lg font-extrabold tracking-tight mb-0.5">Appointment details</h1>
+                      <p className="text-xs text-zinc-500 mb-3">Choose services, pick a slot and add your contact info.</p>
 
-                      <h2 className="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Services</h2>
-                      <div className="space-y-1.5 mb-4">
+                      <h2 className="text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Services</h2>
+                      <div className="space-y-1 mb-3">
                         {venue.services.map((s) => {
                           const isSel = selectedNames.includes(s.name);
                           return (
@@ -253,48 +253,48 @@ function BookingPage() {
                                   prev.includes(s.name) ? prev.filter((n) => n !== s.name) : [...prev, s.name],
                                 )
                               }
-                              className={`w-full flex items-center gap-3 text-left rounded-xl border p-3 transition ${
+                              className={`w-full flex items-center gap-2 text-left rounded-lg border p-2 transition ${
                                 isSel ? "border-zinc-900 bg-zinc-50" : "border-gray-200 hover:border-zinc-400"
                               }`}
                             >
-                              <div className={`h-5 w-5 rounded-md grid place-items-center border-2 shrink-0 ${isSel ? "bg-zinc-900 border-zinc-900 text-white" : "border-zinc-300"}`}>
-                                {isSel && <Check className="h-3 w-3" />}
+                              <div className={`h-4 w-4 rounded-[4px] grid place-items-center border-2 shrink-0 ${isSel ? "bg-zinc-900 border-zinc-900 text-white" : "border-zinc-300"}`}>
+                                {isSel && <Check className="h-2.5 w-2.5" />}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="text-sm font-semibold">{s.name}</div>
-                                <div className="text-[11px] text-zinc-500">{s.duration} · {s.category}</div>
+                                <div className="text-xs font-semibold">{s.name}</div>
+                                <div className="text-[10px] text-zinc-500">{s.duration} · {s.category}</div>
                               </div>
-                              <div className="font-semibold text-sm whitespace-nowrap">{s.price}</div>
+                              <div className="font-semibold text-xs whitespace-nowrap">{s.price}</div>
                             </button>
                           );
                         })}
                       </div>
                       {errors.services && <p className="text-sm text-rose-600 -mt-3 mb-4">{errors.services}</p>}
 
-                      <h2 className="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Date</h2>
-                      <div className="flex gap-2 overflow-x-auto pb-2 mb-1">
+                      <h2 className="text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Date</h2>
+                      <div className="flex gap-1.5 overflow-x-auto pb-1 mb-1">
                         {dateOptions.map((d) => (
                           <button
                             key={d.value}
                             onClick={() => setDate(d.value)}
-                            className={`shrink-0 rounded-xl border px-3 py-2 text-center min-w-[70px] ${
+                            className={`shrink-0 rounded-lg border px-2 py-1.5 text-center min-w-[56px] ${
                               date === d.value ? "border-zinc-900 bg-zinc-900 text-white" : "border-gray-200 hover:border-zinc-400"
                             }`}
                           >
-                            <div className="text-[11px] font-medium leading-none mb-1">{d.label}</div>
-                            <div className="text-xs font-bold leading-none">{d.sub}</div>
+                            <div className="text-[10px] font-medium leading-none mb-0.5">{d.label}</div>
+                            <div className="text-[11px] font-bold leading-none">{d.sub}</div>
                           </button>
                         ))}
                       </div>
                       {errors.date && <p className="text-xs text-rose-600 mb-2">{errors.date}</p>}
 
-                      <h2 className="text-xs font-bold uppercase tracking-wide text-zinc-500 mt-4 mb-2">Time</h2>
-                      <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-1">
+                      <h2 className="text-[10px] font-bold uppercase tracking-wide text-zinc-500 mt-3 mb-1.5">Time</h2>
+                      <div className="grid grid-cols-5 sm:grid-cols-7 gap-1.5 mb-1">
                         {timeOptions.map((t) => (
                           <button
                             key={t}
                             onClick={() => setTime(t)}
-                            className={`rounded-lg border py-1.5 text-xs font-medium ${
+                            className={`rounded-md border py-1 text-[11px] font-medium ${
                               time === t ? "border-zinc-900 bg-zinc-900 text-white" : "border-gray-200 hover:border-zinc-400"
                             }`}
                           >
@@ -304,19 +304,19 @@ function BookingPage() {
                       </div>
                       {errors.time && <p className="text-xs text-rose-600 mb-2">{errors.time}</p>}
 
-                      <h2 className="text-xs font-bold uppercase tracking-wide text-zinc-500 mt-4 mb-2">Your details</h2>
-                      <div className="grid sm:grid-cols-2 gap-2.5">
+                      <h2 className="text-[10px] font-bold uppercase tracking-wide text-zinc-500 mt-3 mb-1.5">Your details</h2>
+                      <div className="grid sm:grid-cols-2 gap-2">
                         <Field label="Full name" icon={<User className="h-4 w-4" />} value={name} onChange={setName} error={errors.name} />
                         <Field label="Email" icon={<Mail className="h-4 w-4" />} value={email} onChange={setEmail} error={errors.email} />
                         <Field label="Phone" icon={<Phone className="h-4 w-4" />} value={phone} onChange={setPhone} error={errors.phone} />
                         <div className="sm:col-span-2">
-                          <label className="block text-xs font-semibold text-zinc-600 mb-1">Notes (optional)</label>
+                          <label className="block text-[10px] font-semibold text-zinc-600 mb-0.5">Notes (optional)</label>
                           <textarea
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             maxLength={500}
-                            rows={2}
-                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                            rows={1}
+                            className="w-full rounded-lg border border-gray-200 px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-zinc-900"
                             placeholder="Anything the salon should know?"
                           />
                         </div>
@@ -324,7 +324,7 @@ function BookingPage() {
 
                       <button
                         onClick={() => validateDetails() && setStep("payment")}
-                        className="mt-5 w-full rounded-full bg-zinc-900 text-white py-2.5 text-sm font-semibold hover:bg-zinc-800"
+                        className="mt-4 w-full rounded-full bg-zinc-900 text-white py-2 text-xs font-semibold hover:bg-zinc-800"
                       >
                         Continue to payment
                       </button>
@@ -487,28 +487,27 @@ function BookingPage() {
             </div>
 
             {/* Right summary */}
-            <aside className="lg:sticky lg:top-24 self-start">
-              <div className="rounded-2xl border border-gray-200 bg-white p-5">
-                <div className="flex items-center gap-3 mb-3">
-                  <img src={venue.images[0]} className="h-10 w-10 rounded-lg object-cover shrink-0" alt="" />
+            <aside className="lg:sticky lg:top-20 self-start">
+              <div className="rounded-2xl border border-gray-200 bg-white p-4">
+                <div className="flex items-center gap-2.5 mb-2">
+                  <img src={venue.images[0]} className="h-8 w-8 rounded-md object-cover shrink-0" alt="" />
                   <div className="min-w-0">
-                    <div className="font-bold truncate">{venue.name}</div>
-                    <div className="flex items-center gap-1 text-xs">
-                      <Star className="h-3.5 w-3.5 fill-zinc-900 text-zinc-900" />
+                    <div className="font-bold text-sm truncate">{venue.name}</div>
+                    <div className="flex items-center gap-1 text-[10px]">
+                      <Star className="h-3 w-3 fill-zinc-900 text-zinc-900" />
                       <span className="font-semibold">{venue.rating.toFixed(1)}</span>
                       <span className="text-zinc-500">({venue.reviews.toLocaleString()})</span>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-zinc-500 mt-0.5"><MapPin className="h-3 w-3" />{venue.city}</div>
                   </div>
                 </div>
 
-                <div className="border-t border-gray-100 pt-4 space-y-2">
-                  {selectedServices.length === 0 && <p className="text-sm text-zinc-500">No services selected.</p>}
+                <div className="border-t border-gray-100 pt-2 space-y-1">
+                  {selectedServices.length === 0 && <p className="text-xs text-zinc-500">No services selected.</p>}
                   {selectedServices.map((s) => (
-                    <div key={s.name} className="flex items-start justify-between gap-2 text-sm">
+                    <div key={s.name} className="flex items-start justify-between gap-2 text-xs">
                       <div>
                         <div className="font-medium">{s.name}</div>
-                        <div className="text-xs text-zinc-500">{s.duration}</div>
+                        <div className="text-[10px] text-zinc-500">{s.duration}</div>
                       </div>
                       <div className="font-semibold whitespace-nowrap">{s.price}</div>
                     </div>
@@ -516,17 +515,17 @@ function BookingPage() {
                 </div>
 
                 {(date || time) && (
-                  <div className="border-t border-gray-100 mt-4 pt-4 text-sm space-y-1">
-                    {date && <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-zinc-500" /> {date}</div>}
-                    {time && <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-zinc-500" /> {time}</div>}
+                  <div className="border-t border-gray-100 mt-2 pt-2 text-xs space-y-0.5">
+                    {date && <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-zinc-500" /> {date}</div>}
+                    {time && <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-zinc-500" /> {time}</div>}
                   </div>
                 )}
 
-                <div className="border-t border-gray-100 mt-4 pt-4 flex items-baseline justify-between">
-                  <span className="font-semibold">Total</span>
-                  <span className="text-xl font-extrabold">{totalStr}</span>
+                <div className="border-t border-gray-100 mt-2 pt-2 flex items-baseline justify-between">
+                  <span className="text-sm font-semibold">Total</span>
+                  <span className="text-lg font-extrabold">{totalStr}</span>
                 </div>
-                <p className="text-xs text-zinc-500 mt-2">Taxes included where applicable. Free cancellation up to 24h before.</p>
+                <p className="text-[10px] text-zinc-500 mt-1.5 leading-tight">Taxes included where applicable. Free cancellation up to 24h before.</p>
               </div>
             </aside>
           </div>
@@ -553,16 +552,16 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-zinc-600 mb-1">{label}</label>
-      <div className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 focus-within:ring-2 focus-within:ring-zinc-900 ${error ? "border-rose-400" : "border-gray-200"}`}>
+      <label className="block text-[10px] font-semibold text-zinc-600 mb-0.5">{label}</label>
+      <div className={`flex items-center gap-1.5 rounded-lg border px-2 py-1.5 focus-within:ring-1 focus-within:ring-zinc-900 ${error ? "border-rose-400" : "border-gray-200"}`}>
         <span className="text-zinc-400">{icon}</span>
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 bg-transparent text-sm focus:outline-none"
+          className="flex-1 bg-transparent text-xs focus:outline-none"
         />
       </div>
-      {error && <p className="text-xs text-rose-600 mt-1">{error}</p>}
+      {error && <p className="text-[10px] text-rose-600 mt-0.5">{error}</p>}
     </div>
   );
 }

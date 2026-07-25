@@ -44,9 +44,26 @@ function BookingsPage() {
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [selectedReceipt, setSelectedReceipt] = useState<StoredBooking | null>(null);
 
+  const [rescheduleBooking, setRescheduleBooking] = useState<StoredBooking | null>(null);
+  const [newDate, setNewDate] = useState("");
+  const [newTime, setNewTime] = useState("");
+
+  const timeSlots = ["09:00", "10:30", "12:00", "13:30", "15:00", "16:30", "18:00", "19:30"];
+
   useEffect(() => {
     setBookings(loadBookings());
   }, []);
+
+  function handleSaveReschedule() {
+    if (!rescheduleBooking || !newDate || !newTime) return;
+    updateBooking(rescheduleBooking.bookingId, { date: newDate, time: newTime });
+    const updated = loadBookings();
+    setBookings(updated);
+    if (selectedReceipt && selectedReceipt.bookingId === rescheduleBooking.bookingId) {
+      setSelectedReceipt({ ...selectedReceipt, date: newDate, time: newTime });
+    }
+    setRescheduleBooking(null);
+  }
 
   const syncStatuses = useMemo(
     () => async () => {
@@ -233,12 +250,24 @@ function BookingsPage() {
                             <Receipt className="h-4 w-4" /> Receipt
                           </button>
                           {bucketOf(b) === "upcoming" && (
-                            <button
-                              onClick={() => onCancel(b.bookingId)}
-                              className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 text-rose-700 px-4 py-2 text-sm font-semibold hover:bg-rose-50"
-                            >
-                              <Ban className="h-4 w-4" /> Cancel
-                            </button>
+                            <>
+                              <button
+                                onClick={() => {
+                                  setRescheduleBooking(b);
+                                  setNewDate(b.date);
+                                  setNewTime(b.time);
+                                }}
+                                className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 text-indigo-700 px-4 py-2 text-sm font-semibold hover:bg-indigo-50 transition"
+                              >
+                                <Clock className="h-4 w-4" /> Reschedule
+                              </button>
+                              <button
+                                onClick={() => onCancel(b.bookingId)}
+                                className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 text-rose-700 px-4 py-2 text-sm font-semibold hover:bg-rose-50"
+                              >
+                                <Ban className="h-4 w-4" /> Cancel
+                              </button>
+                            </>
                           )}
                         </div>
                       </div>
@@ -344,6 +373,98 @@ function BookingsPage() {
                   className="rounded-full border border-gray-200 px-5 py-3 text-sm font-semibold text-zinc-700 hover:bg-gray-50 transition"
                 >
                   Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Interactive Reschedule Modal */}
+      <AnimatePresence>
+        {rescheduleBooking && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative border border-gray-100"
+            >
+              <button
+                onClick={() => setRescheduleBooking(null)}
+                className="absolute top-5 right-5 h-9 w-9 rounded-full bg-gray-100 grid place-items-center text-zinc-500 hover:bg-gray-200 transition"
+              >
+                ✕
+              </button>
+
+              <div className="text-center pb-5 border-b border-gray-100">
+                <div className="h-12 w-12 rounded-full bg-indigo-50 text-indigo-600 grid place-items-center mx-auto mb-2">
+                  <Clock className="h-6 w-6" />
+                </div>
+                <h2 className="text-2xl font-extrabold text-zinc-900">Reschedule Appointment</h2>
+                <p className="text-xs text-zinc-500 mt-1">{rescheduleBooking.venueName}</p>
+                <p className="text-xs font-mono text-zinc-400 mt-0.5">Ref: {rescheduleBooking.bookingId}</p>
+              </div>
+
+              <div className="py-5 space-y-4">
+                {/* Date Input */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">
+                    Select New Date
+                  </label>
+                  <input
+                    type="date"
+                    value={newDate}
+                    onChange={(e) => setNewDate(e.target.value)}
+                    className="w-full rounded-2xl border border-gray-200 p-3 text-sm font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  />
+                </div>
+
+                {/* Time Slots */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">
+                    Select Available Time Slot
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {timeSlots.map((slot) => (
+                      <button
+                        key={slot}
+                        type="button"
+                        onClick={() => setNewTime(slot)}
+                        className={`py-2 rounded-xl text-xs font-bold transition border ${
+                          newTime === slot
+                            ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
+                            : "bg-gray-50 text-zinc-700 border-gray-200 hover:bg-gray-100"
+                        }`}
+                      >
+                        {slot}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Notice */}
+                <div className="bg-indigo-50/80 rounded-2xl p-3.5 text-xs text-indigo-900 flex items-start gap-2">
+                  <Clock className="h-4 w-4 shrink-0 text-indigo-600 mt-0.5" />
+                  <div>
+                    Rescheduling will update your appointment time and automatically refresh your tax invoice/receipt.
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="pt-4 flex gap-3">
+                <button
+                  onClick={handleSaveReschedule}
+                  className="flex-1 rounded-full bg-zinc-900 text-white py-3 text-sm font-bold hover:bg-zinc-800 transition shadow-sm"
+                >
+                  Save & Refresh Receipt
+                </button>
+                <button
+                  onClick={() => setRescheduleBooking(null)}
+                  className="rounded-full border border-gray-200 px-5 py-3 text-sm font-semibold text-zinc-700 hover:bg-gray-50 transition"
+                >
+                  Cancel
                 </button>
               </div>
             </motion.div>

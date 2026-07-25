@@ -84,10 +84,12 @@ function Marketplace() {
       <MarketplaceHeader />
 
       {/* Hero */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-pink-200/70 via-white to-indigo-300/70" />
-        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-fuchsia-300/40 blur-3xl -z-10" />
-        <div className="absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-indigo-300/40 blur-3xl -z-10" />
+      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative">
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-pink-200/70 via-white to-indigo-300/70" />
+          <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-fuchsia-300/40 blur-3xl" />
+          <div className="absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-indigo-300/40 blur-3xl" />
+        </div>
         <div className="max-w-5xl mx-auto text-center">
           <motion.h1
             initial={{ opacity: 0, y: 12 }}

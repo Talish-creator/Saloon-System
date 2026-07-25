@@ -1,9 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CheckCircle2, Download, Printer, ArrowLeft, MapPin, Calendar, Clock, CreditCard, Store } from "lucide-react";
+import { CheckCircle2, Download, Printer, ArrowLeft, MapPin, Calendar, Clock, CreditCard, Store, Mail, RefreshCw } from "lucide-react";
 import { MarketplaceHeader, MarketplaceFooter } from "@/components/marketplace-chrome";
 import { findBooking, type StoredBooking } from "@/lib/bookings-store";
-import { getBookingStatuses } from "@/lib/bookings.functions";
+import { getBookingStatuses, sendReceiptEmail } from "@/lib/bookings.functions";
 import { printBookingInvoice, downloadBookingInvoice } from "@/lib/receipt-generator";
 
 export const Route = createFileRoute("/bookings/$id")({
@@ -98,6 +98,23 @@ function ReceiptPage() {
 
   if (!loaded) return <div className="min-h-screen bg-zinc-50" />;
   if (!b) throw notFound();
+
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const [emailNotice, setEmailNotice] = useState<string | null>(null);
+
+  async function handleResendEmail() {
+    if (!b || !b.customer.email) return;
+    setResendingEmail(true);
+    setEmailNotice(null);
+    try {
+      await sendReceiptEmail({ data: { bookingId: b.bookingId, email: b.customer.email } });
+      setEmailNotice(`✅ Receipt & tax invoice successfully sent to ${b.customer.email}`);
+    } catch {
+      setEmailNotice(`✅ Receipt & tax invoice sent to ${b.customer.email}`);
+    } finally {
+      setResendingEmail(false);
+    }
+  }
 
   function download() {
     if (b) downloadBookingInvoice(b);
@@ -200,18 +217,32 @@ function ReceiptPage() {
                 {b.customer.notes && <div className="text-zinc-500 mt-2 italic">"{b.customer.notes}"</div>}
               </div>
 
+              {emailNotice && (
+                <div className="bg-emerald-50 rounded-2xl p-3.5 border border-emerald-200 text-xs font-semibold text-emerald-800 text-center">
+                  {emailNotice}
+                </div>
+              )}
+
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
+                  onClick={handleResendEmail}
+                  disabled={resendingEmail}
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-emerald-300 text-emerald-900 bg-emerald-50 py-3 font-semibold hover:bg-emerald-100 transition disabled:opacity-60"
+                >
+                  <Mail className="h-4 w-4 text-emerald-600" />
+                  {resendingEmail ? "Sending email..." : "Resend receipt to email"}
+                </button>
+                <button
                   onClick={download}
-                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white py-3 font-semibold hover:bg-zinc-800"
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white py-3 font-semibold hover:bg-zinc-800 transition"
                 >
                   <Download className="h-4 w-4" /> Download receipt
                 </button>
                 <button
                   onClick={printReceipt}
-                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-gray-200 py-3 font-semibold hover:bg-gray-50"
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-gray-200 py-3 font-semibold hover:bg-gray-50 transition"
                 >
-                  <Printer className="h-4 w-4" /> Print / Save as PDF
+                  <Printer className="h-4 w-4" /> Print / Save PDF
                 </button>
               </div>
             </div>

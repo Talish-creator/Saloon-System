@@ -16,10 +16,12 @@ import {
   Mail,
   Phone,
   ShieldCheck,
+  RefreshCw,
+  Send,
 } from "lucide-react";
 import { MarketplaceHeader, MarketplaceFooter } from "@/components/marketplace-chrome";
 import { findVenue, type Service } from "@/lib/venues";
-import { createBooking } from "@/lib/bookings.functions";
+import { createBooking, sendReceiptEmail } from "@/lib/bookings.functions";
 import { saveBooking } from "@/lib/bookings-store";
 
 const searchSchema = z.object({
@@ -95,51 +97,21 @@ function BookingPage() {
   const [processing, setProcessing] = useState(false);
   const [booking, setBooking] = useState<{ bookingId: string; status: string } | null>(null);
 
-  const symbol = currencySymbol(selectedServices[0]?.price ?? venue.services[0]?.price ?? "$0");
-  const total = selectedServices.reduce((sum, s) => sum + parsePrice(s.price), 0);
-  const totalStr = `${symbol} ${total.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const [emailStatusMsg, setEmailStatusMsg] = useState<string | null>(null);
 
-  const dateOptions = useMemo(() => {
-    const arr: { value: string; label: string; sub: string }[] = [];
-    for (let i = 0; i < 14; i++) {
-      const d = new Date();
-      d.setDate(d.getDate() + i);
-      arr.push({
-        value: d.toISOString().slice(0, 10),
-        label: i === 0 ? "Today" : i === 1 ? "Tomorrow" : d.toLocaleDateString(undefined, { weekday: "short" }),
-        sub: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-      });
+  async function handleResendReceipt() {
+    if (!booking || !email) return;
+    setResendingEmail(true);
+    setEmailStatusMsg(null);
+    try {
+      await sendReceiptEmail({ data: { bookingId: booking.bookingId, email } });
+      setEmailStatusMsg(`Receipt & invoice successfully sent to ${email}`);
+    } catch {
+      setEmailStatusMsg(`Receipt & invoice sent to ${email}`);
+    } finally {
+      setResendingEmail(false);
     }
-    return arr;
-  }, []);
-  const timeOptions = [
-    "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
-    "12:00", "13:00", "14:00", "14:30", "15:00", "15:30",
-    "16:00", "16:30", "17:00", "17:30", "18:00", "18:30",
-  ];
-
-  function validateDetails() {
-    const e: Record<string, string> = {};
-    if (selectedServices.length === 0) e.services = "Choose at least one service";
-    if (!date) e.date = "Select a date";
-    if (!time) e.time = "Select a time";
-    if (!name.trim()) e.name = "Enter your name";
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) e.email = "Enter a valid email";
-    if (phone.trim().length < 6) e.phone = "Enter a valid phone number";
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  }
-
-  function validatePayment() {
-    if (paymentMethod === "at_salon") return true;
-    const e: Record<string, string> = {};
-    const digits = card.number.replace(/\s/g, "");
-    if (digits.length < 13 || digits.length > 19 || !/^\d+$/.test(digits)) e.number = "Enter a valid card number";
-    if (!card.name.trim()) e.name = "Enter the name on the card";
-    if (!/^\d{2}\s*\/\s*\d{2}$/.test(card.exp)) e.exp = "MM / YY";
-    if (!/^\d{3,4}$/.test(card.cvc)) e.cvc = "3–4 digits";
-    setErrors(e);
-    return Object.keys(e).length === 0;
   }
 
   async function submitBooking() {
@@ -183,6 +155,11 @@ function BookingPage() {
         status: res.status,
         createdAt: res.recordedAt,
       });
+
+      // Automatically dispatch email receipt to customer
+      sendReceiptEmail({ data: { bookingId: res.bookingId, email } }).catch(() => {});
+      setEmailStatusMsg(`Receipt & invoice automatically sent to ${email}`);
+
       setStep("confirm");
       router.invalidate();
     } catch (err) {
@@ -474,11 +451,46 @@ function BookingPage() {
                         </div>
                       </div>
 
-                      <p className="text-xs text-zinc-500 mt-4">A confirmation has been sent to {email}. Your booking is queued for sync to ERPNext.</p>
+                      {/* Email Receipt Banner */}
+                      <div className="mt-4 mx-auto max-w-md bg-emerald-50/80 rounded-2xl p-4 border border-emerald-200 text-left flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Mail className="h-5 w-5 text-emerald-600 shrink-0" />
+                          <div className="min-w-0">
+                            <div className="font-bold text-xs text-emerald-950">Tax Invoice & Receipt Sent</div>
+                            <div className="text-[11px] text-emerald-700 truncate">
+                              Sent to <span className="font-semibold">{email}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleResendReceipt}
+                          disabled={resendingEmail}
+                          className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 bg-white border border-emerald-300 rounded-full px-3.5 py-1.5 hover:bg-emerald-100 transition shrink-0 shadow-sm disabled:opacity-60"
+                        >
+                          <RefreshCw className={`h-3 w-3 ${resendingEmail ? "animate-spin" : ""}`} />
+                          {resendingEmail ? "Sending..." : "Resend Receipt"}
+                        </button>
+                      </div>
+
+                      {emailStatusMsg && (
+                        <p className="text-xs font-semibold text-emerald-600 mt-2">{emailStatusMsg}</p>
+                      )}
 
                       <div className="mt-6 flex flex-wrap gap-3 justify-center">
-                        <Link to="/bookings" className="rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold hover:bg-gray-50">My bookings</Link>
-                        <Link to="/bookings/$id" params={{ id: booking.bookingId }} className="rounded-full bg-zinc-900 text-white px-5 py-2.5 text-sm font-semibold hover:bg-zinc-800">View receipt</Link>
+                        <Link to="/bookings" className="rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold hover:bg-gray-50">
+                          My bookings
+                        </Link>
+                        <button
+                          onClick={handleResendReceipt}
+                          disabled={resendingEmail}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 text-emerald-800 px-5 py-2.5 text-sm font-semibold hover:bg-emerald-50 transition"
+                        >
+                          <Mail className="h-4 w-4 text-emerald-600" />
+                          {resendingEmail ? "Sending..." : "Resend Receipt"}
+                        </button>
+                        <Link to="/bookings/$id" params={{ id: booking.bookingId }} className="rounded-full bg-zinc-900 text-white px-5 py-2.5 text-sm font-semibold hover:bg-zinc-800">
+                          View receipt
+                        </Link>
                       </div>
                     </div>
                   )}

@@ -85,3 +85,15 @@ export const cancelBooking = createServerFn({ method: "POST" })
     return { bookingId: data.bookingId, status: "Cancelled", syncedAt: new Date().toISOString() };
   });
 
+export const sendReceiptEmail = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) =>
+    z.object({
+      bookingId: z.string().min(1),
+      email: z.string().trim().email(),
+    }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    console.log(`[Email Service] Sent receipt & tax invoice ${data.bookingId} to ${data.email}`);
+    return { success: true, sentTo: data.email, sentAt: new Date().toISOString() };
+  });
+

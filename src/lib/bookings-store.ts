@@ -26,7 +26,7 @@ const DEFAULT_BOOKINGS: StoredBooking[] = [
     venueImage: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1400&q=80",
     venueAddress: "Building 17, Street 14, Dubai, United Arab Emirates",
     services: [
-      { name: "Hot Stone Aromatherapy", price: "800 AED", duration: "90 mins" }
+      { name: "Hot Stone Aromatherapy", price: "175 AED", duration: "90 mins" }
     ],
     date: "2026-07-25",
     time: "09:30",
@@ -37,7 +37,7 @@ const DEFAULT_BOOKINGS: StoredBooking[] = [
       notes: "Please provide a quiet room."
     },
     paymentMethod: "at_salon",
-    total: "800 AED",
+    total: "175 AED",
     status: "Pending Payment",
     createdAt: "2026-07-25T09:30:00.000Z"
   },
@@ -48,8 +48,8 @@ const DEFAULT_BOOKINGS: StoredBooking[] = [
     venueImage: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1400&q=80",
     venueAddress: "403 Jumeirah Beach Rd, Al Athar Street, Dubai",
     services: [
-      { name: "Deep Tissue Muscle Relief", price: "520 AED", duration: "60 mins" },
-      { name: "Hair Spa & Deep Conditioning", price: "290 AED", duration: "45 mins" }
+      { name: "Deep Tissue Muscle Relief", price: "115 AED", duration: "60 mins" },
+      { name: "Hair Spa & Deep Conditioning", price: "65 AED", duration: "45 mins" }
     ],
     date: "2026-07-28",
     time: "14:00",
@@ -60,7 +60,7 @@ const DEFAULT_BOOKINGS: StoredBooking[] = [
     },
     paymentMethod: "online",
     paymentRef: "PAY-987412",
-    total: "810 AED",
+    total: "180 AED",
     status: "Paid",
     createdAt: "2026-07-25T14:00:00.000Z"
   }

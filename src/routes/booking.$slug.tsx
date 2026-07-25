@@ -100,6 +100,53 @@ function BookingPage() {
   const [resendingEmail, setResendingEmail] = useState(false);
   const [emailStatusMsg, setEmailStatusMsg] = useState<string | null>(null);
 
+  const symbol = currencySymbol(selectedServices[0]?.price ?? venue.services[0]?.price ?? "$0");
+  const total = selectedServices.reduce((sum, s) => sum + parsePrice(s.price), 0);
+  const totalStr = `${symbol} ${total.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+
+  const dateOptions = useMemo(() => {
+    const arr: { value: string; label: string; sub: string }[] = [];
+    for (let i = 0; i < 14; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      arr.push({
+        value: d.toISOString().slice(0, 10),
+        label: i === 0 ? "Today" : i === 1 ? "Tomorrow" : d.toLocaleDateString(undefined, { weekday: "short" }),
+        sub: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+      });
+    }
+    return arr;
+  }, []);
+  const timeOptions = [
+    "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "12:00", "13:00", "14:00", "14:30", "15:00", "15:30",
+    "16:00", "16:30", "17:00", "17:30", "18:00", "18:30",
+  ];
+
+  function validateDetails() {
+    const e: Record<string, string> = {};
+    if (selectedServices.length === 0) e.services = "Choose at least one service";
+    if (!date) e.date = "Select a date";
+    if (!time) e.time = "Select a time";
+    if (!name.trim()) e.name = "Enter your name";
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) e.email = "Enter a valid email";
+    if (phone.trim().length < 6) e.phone = "Enter a valid phone number";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
+  function validatePayment() {
+    if (paymentMethod === "at_salon") return true;
+    const e: Record<string, string> = {};
+    const digits = card.number.replace(/\s/g, "");
+    if (digits.length < 13 || digits.length > 19 || !/^\d+$/.test(digits)) e.number = "Enter a valid card number";
+    if (!card.name.trim()) e.name = "Enter the name on the card";
+    if (!/^\d{2}\s*\/\s*\d{2}$/.test(card.exp)) e.exp = "MM / YY";
+    if (!/^\d{3,4}$/.test(card.cvc)) e.cvc = "3–4 digits";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
   async function handleResendReceipt() {
     if (!booking || !email) return;
     setResendingEmail(true);

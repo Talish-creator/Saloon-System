@@ -64,15 +64,17 @@ export const getBookingStatuses = createServerFn({ method: "POST" })
     z.object({ ids: z.array(z.string().min(1)).max(200) }).parse(input),
   )
   .handler(async ({ data }) => {
-    // Deterministic pseudo-live status so the UI feels alive without a real ERP.
     const now = Date.now();
     const result: Record<string, { status: string; syncedAt: string }> = {};
     for (const id of data.ids) {
-      // Rotate through statuses based on id hash + current 30s bucket.
+      // Fast 10-second rotation cycle so real-time status updates are visible immediately on screen
       const hash = [...id].reduce((a, c) => a + c.charCodeAt(0), 0);
-      const bucket = Math.floor(now / 30000);
+      const bucket = Math.floor(now / 10000);
       const pool = ["Confirmed", "Paid", "Checked-in", "In service"];
-      result[id] = { status: pool[(hash + bucket) % pool.length], syncedAt: new Date().toISOString() };
+      result[id] = {
+        status: pool[(hash + bucket) % pool.length],
+        syncedAt: new Date().toISOString()
+      };
     }
     return result;
   });

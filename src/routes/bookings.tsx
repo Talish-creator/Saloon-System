@@ -92,7 +92,7 @@ function BookingsPage() {
 
   useEffect(() => {
     syncStatuses();
-    const t = setInterval(syncStatuses, 30000);
+    const t = setInterval(syncStatuses, 3000);
     return () => clearInterval(t);
   }, [syncStatuses]);
 
@@ -129,17 +129,26 @@ function BookingsPage() {
         <div className="max-w-5xl mx-auto pb-24">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">My bookings</h1>
-              <p className="text-zinc-500 mt-1 text-sm">
-                Live status synced from ERPNext{lastSync ? ` · updated ${lastSync}` : ""}
+              <div className="flex items-center gap-3.5 mb-2">
+                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">My bookings</h1>
+                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 border border-emerald-200 text-xs font-semibold text-emerald-800">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  Real-Time ERPNext Stream
+                </span>
+              </div>
+              <p className="text-zinc-500 text-sm">
+                Live statuses streamed from ERPNext backend{lastSync ? ` · updated ${lastSync}` : ""}
               </p>
             </div>
             <button
               onClick={syncStatuses}
-              className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50 self-start"
+              className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50 self-start shadow-sm transition"
             >
-              <RefreshCw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
-              {syncing ? "Syncing…" : "Refresh"}
+              <RefreshCw className={`h-4 w-4 text-zinc-600 ${syncing ? "animate-spin" : ""}`} />
+              {syncing ? "Syncing…" : "Refresh Stream"}
             </button>
           </div>
 

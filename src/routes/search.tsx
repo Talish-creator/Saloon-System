@@ -17,16 +17,34 @@ export const Route = createFileRoute("/search")({
 });
 
 function SearchResults() {
-  const { q } = Route.useSearch();
+  const query = (q || "").trim().toLowerCase();
+  const words = query.split(/\s+/).filter(Boolean);
   
-  const query = (q || "").toLowerCase();
-  
-  const results = venues.filter(v => {
+  // Try exact / multi-word match first
+  let results = venues.filter(v => {
     if (!query) return true;
     if (v.name.toLowerCase().includes(query)) return true;
     if (v.category.toLowerCase().includes(query)) return true;
-    return v.services.some(s => s.name.toLowerCase().includes(query) || s.category.toLowerCase().includes(query));
+    return v.services.some(s => 
+      s.name.toLowerCase().includes(query) || 
+      s.category.toLowerCase().includes(query)
+    );
   });
+
+  // If no exact match, try matching any individual word (e.g. "Hair" or "Spa")
+  if (results.length === 0 && words.length > 0) {
+    results = venues.filter(v => {
+      return words.some(w => 
+        v.name.toLowerCase().includes(w) ||
+        v.category.toLowerCase().includes(w) ||
+        v.services.some(s => s.name.toLowerCase().includes(w) || s.category.toLowerCase().includes(w))
+      );
+    });
+  }
+
+  // Fallback if still empty: show all venues so user always sees options
+  const isFallback = results.length === 0;
+  const displayResults = isFallback ? venues : results;
 
   return (
     <div className="min-h-screen bg-white text-zinc-900 flex flex-col" style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}>
@@ -39,11 +57,15 @@ function SearchResults() {
             <h1 className="text-2xl font-extrabold tracking-tight">
               {query ? `Results for "${q}"` : "All venues"}
             </h1>
-            <p className="text-zinc-500 text-sm mt-1">{results.length} venues found</p>
+            <p className="text-zinc-500 text-sm mt-1">
+              {isFallback 
+                ? "No exact matches found. Showing top-rated venues near you:" 
+                : `${displayResults.length} venue${displayResults.length === 1 ? "" : "s"} found`}
+            </p>
           </div>
           
           <div className="space-y-6">
-            {results.map(v => (
+            {displayResults.map(v => (
               <div key={v.slug} className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition">
                 <Link to="/venue/$slug" params={{ slug: v.slug }} className="block">
                   <div className="flex aspect-[21/9] bg-gray-100 overflow-hidden relative">
@@ -90,15 +112,6 @@ function SearchResults() {
                 </div>
               </div>
             ))}
-            {results.length === 0 && (
-              <div className="text-center py-20 px-4">
-                <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <MapPin className="h-6 w-6 text-zinc-400" />
-                </div>
-                <h3 className="text-lg font-bold">No venues found</h3>
-                <p className="text-zinc-500 mt-1">Try adjusting your search criteria or looking in a different area.</p>
-              </div>
-            )}
           </div>
         </div>
         
@@ -109,7 +122,7 @@ function SearchResults() {
           <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
 
           {/* Dummy Map Pins */}
-          {results.map((v, i) => {
+          {displayResults.map((v, i) => {
             // Generate some deterministic but scattered positions for the demo pins
             const top = 15 + ((v.name.length * 7 + i * 23) % 70);
             const left = 15 + ((v.name.length * 11 + i * 37) % 70);

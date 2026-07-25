@@ -185,7 +185,8 @@ function Marketplace() {
                         {treatmentCategories.map((t) => (
                           <Link
                             key={t.name}
-                            to="/marketplace"
+                            to="/search"
+                            search={{ q: t.name }}
                             className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50"
                           >
                             <span className="h-9 w-9 rounded-full bg-gradient-to-br from-fuchsia-100 to-indigo-100 grid place-items-center text-lg">{t.emoji}</span>

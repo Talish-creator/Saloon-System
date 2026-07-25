@@ -9,17 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as MarketplaceRouteImport } from './routes/marketplace'
-import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as VenueSlugRouteImport } from './routes/venue.$slug'
-import { Route as BusinessSlugRouteImport } from './routes/business.$slug'
-import { Route as BookingsIdRouteImport } from './routes/bookings.$id'
+import { Route as BookingsRouteImport } from './routes/bookings'
+import { Route as MarketplaceRouteImport } from './routes/marketplace'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as BookingSlugRouteImport } from './routes/booking.$slug'
+import { Route as BookingsIdRouteImport } from './routes/bookings.$id'
+import { Route as BusinessSlugRouteImport } from './routes/business.$slug'
+import { Route as VenueSlugRouteImport } from './routes/venue.$slug'
 
-const MarketplaceRoute = MarketplaceRouteImport.update({
-  id: '/marketplace',
-  path: '/marketplace',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookingsRoute = BookingsRouteImport.update({
@@ -27,19 +28,19 @@ const BookingsRoute = BookingsRouteImport.update({
   path: '/bookings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const MarketplaceRoute = MarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VenueSlugRoute = VenueSlugRouteImport.update({
-  id: '/venue/$slug',
-  path: '/venue/$slug',
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BusinessSlugRoute = BusinessSlugRouteImport.update({
-  id: '/business/$slug',
-  path: '/business/$slug',
+const BookingSlugRoute = BookingSlugRouteImport.update({
+  id: '/booking/$slug',
+  path: '/booking/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookingsIdRoute = BookingsIdRouteImport.update({
@@ -47,9 +48,14 @@ const BookingsIdRoute = BookingsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => BookingsRoute,
 } as any)
-const BookingSlugRoute = BookingSlugRouteImport.update({
-  id: '/booking/$slug',
-  path: '/booking/$slug',
+const BusinessSlugRoute = BusinessSlugRouteImport.update({
+  id: '/business/$slug',
+  path: '/business/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VenueSlugRoute = VenueSlugRouteImport.update({
+  id: '/venue/$slug',
+  path: '/venue/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bookings': typeof BookingsRouteWithChildren
   '/marketplace': typeof MarketplaceRoute
+  '/search': typeof SearchRoute
   '/booking/$slug': typeof BookingSlugRoute
   '/bookings/$id': typeof BookingsIdRoute
   '/business/$slug': typeof BusinessSlugRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bookings': typeof BookingsRouteWithChildren
   '/marketplace': typeof MarketplaceRoute
+  '/search': typeof SearchRoute
   '/booking/$slug': typeof BookingSlugRoute
   '/bookings/$id': typeof BookingsIdRoute
   '/business/$slug': typeof BusinessSlugRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/bookings': typeof BookingsRouteWithChildren
   '/marketplace': typeof MarketplaceRoute
+  '/search': typeof SearchRoute
   '/booking/$slug': typeof BookingSlugRoute
   '/bookings/$id': typeof BookingsIdRoute
   '/business/$slug': typeof BusinessSlugRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bookings'
     | '/marketplace'
+    | '/search'
     | '/booking/$slug'
     | '/bookings/$id'
     | '/business/$slug'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bookings'
     | '/marketplace'
+    | '/search'
     | '/booking/$slug'
     | '/bookings/$id'
     | '/business/$slug'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bookings'
     | '/marketplace'
+    | '/search'
     | '/booking/$slug'
     | '/bookings/$id'
     | '/business/$slug'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BookingsRoute: typeof BookingsRouteWithChildren
   MarketplaceRoute: typeof MarketplaceRoute
+  SearchRoute: typeof SearchRoute
   BookingSlugRoute: typeof BookingSlugRoute
   BusinessSlugRoute: typeof BusinessSlugRoute
   VenueSlugRoute: typeof VenueSlugRoute
@@ -122,11 +135,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/marketplace': {
-      id: '/marketplace'
-      path: '/marketplace'
-      fullPath: '/marketplace'
-      preLoaderRoute: typeof MarketplaceRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bookings': {
@@ -136,25 +149,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/marketplace': {
+      id: '/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof MarketplaceRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/venue/$slug': {
-      id: '/venue/$slug'
-      path: '/venue/$slug'
-      fullPath: '/venue/$slug'
-      preLoaderRoute: typeof VenueSlugRouteImport
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/business/$slug': {
-      id: '/business/$slug'
-      path: '/business/$slug'
-      fullPath: '/business/$slug'
-      preLoaderRoute: typeof BusinessSlugRouteImport
+    '/booking/$slug': {
+      id: '/booking/$slug'
+      path: '/booking/$slug'
+      fullPath: '/booking/$slug'
+      preLoaderRoute: typeof BookingSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bookings/$id': {
@@ -164,11 +177,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingsIdRouteImport
       parentRoute: typeof BookingsRoute
     }
-    '/booking/$slug': {
-      id: '/booking/$slug'
-      path: '/booking/$slug'
-      fullPath: '/booking/$slug'
-      preLoaderRoute: typeof BookingSlugRouteImport
+    '/business/$slug': {
+      id: '/business/$slug'
+      path: '/business/$slug'
+      fullPath: '/business/$slug'
+      preLoaderRoute: typeof BusinessSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/venue/$slug': {
+      id: '/venue/$slug'
+      path: '/venue/$slug'
+      fullPath: '/venue/$slug'
+      preLoaderRoute: typeof VenueSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -190,6 +210,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BookingsRoute: BookingsRouteWithChildren,
   MarketplaceRoute: MarketplaceRoute,
+  SearchRoute: SearchRoute,
   BookingSlugRoute: BookingSlugRoute,
   BusinessSlugRoute: BusinessSlugRoute,
   VenueSlugRoute: VenueSlugRoute,
@@ -197,3 +218,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

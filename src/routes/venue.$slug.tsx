@@ -119,12 +119,12 @@ function VenuePage() {
       </section>
 
       {/* Body */}
-      <section className="px-4 sm:px-6 lg:px-8 mt-8 pb-24">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-[1fr_380px] gap-10">
+      <section className="px-3 sm:px-6 lg:px-8 mt-6 sm:mt-8 pb-16 sm:pb-24 max-w-full overflow-x-hidden">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-[1fr_380px] gap-6 lg:gap-10 w-full max-w-full">
           {/* Left */}
-          <div>
+          <div className="w-full min-w-0">
             {/* Tabs */}
-            <div className="sticky top-16 bg-white z-30 -mx-4 px-4 py-2 border-b border-gray-100 flex gap-2 overflow-x-auto">
+            <div className="sticky top-16 bg-white z-30 -mx-4 px-4 py-2 border-b border-gray-100 flex gap-2 overflow-x-auto scrollbar-none">
               {tabs.map((t) => (
                 <button
                   key={t}
@@ -145,12 +145,12 @@ function VenuePage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.25 }}
-                className="pt-8"
+                className="pt-6 sm:pt-8 w-full min-w-0"
               >
                 {activeTab === "Services" && (
                   <div>
                     <h2 className="text-2xl font-extrabold tracking-tight mb-4">Services</h2>
-                    <div className="space-y-3">
+                    <div className="space-y-3 w-full">
                       {categories.map(([cat, items]) => {
                         const isOpen = openCat === cat || openCat === null;
                         return (
@@ -175,12 +175,12 @@ function VenuePage() {
                                       const id = `${cat}-${s.name}`;
                                       const isSel = selected.includes(id);
                                       return (
-                                        <div key={id} className="py-4 flex items-start justify-between gap-6">
-                                          <div className="flex-1">
-                                            <div className="font-semibold">{s.name}</div>
-                                            <div className="text-sm text-zinc-500 mt-0.5">{s.duration}</div>
+                                        <div key={id} className="py-4 flex items-start justify-between gap-3 sm:gap-6 min-w-0">
+                                          <div className="flex-1 min-w-0">
+                                            <div className="font-semibold text-sm sm:text-base">{s.name}</div>
+                                            <div className="text-xs sm:text-sm text-zinc-500 mt-0.5">{s.duration}</div>
                                             {s.description && (
-                                              <div className="text-sm text-zinc-600 mt-1.5 max-w-lg">{s.description}</div>
+                                              <div className="text-xs sm:text-sm text-zinc-600 mt-1.5 max-w-lg break-words">{s.description}</div>
                                             )}
                                           </div>
                                           <div className="text-right">
@@ -314,8 +314,8 @@ function VenuePage() {
           </div>
 
           {/* Right sidebar */}
-          <aside className="lg:sticky lg:top-24 self-start">
-            <div className="rounded-3xl border border-gray-200 shadow-sm p-6 bg-white">
+          <aside className="lg:sticky lg:top-24 self-start w-full min-w-0">
+            <div className="rounded-3xl border border-gray-200 shadow-sm p-4 sm:p-6 bg-white w-full max-w-full overflow-hidden">
               <div className="flex items-center gap-1 text-sm mb-1">
                 <Star className="h-4 w-4 fill-zinc-900 text-zinc-900" />
                 <span className="font-bold">{venue.rating.toFixed(1)}</span>

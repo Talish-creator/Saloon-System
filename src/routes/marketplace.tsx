@@ -95,7 +95,7 @@ function Marketplace() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.05]"
+            className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.08]"
           >
             Book local selfcare services
           </motion.h1>
@@ -103,7 +103,7 @@ function Marketplace() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mt-5 text-lg text-zinc-600 max-w-2xl mx-auto"
+            className="mt-3 sm:mt-5 text-sm sm:text-base md:text-lg text-zinc-600 max-w-2xl mx-auto"
           >
             Discover top-rated salons, barbers, medspas, wellness studios and beauty experts trusted by millions worldwide
           </motion.p>
@@ -113,29 +113,29 @@ function Marketplace() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-10 relative"
+            className="mt-8 sm:mt-10 relative"
           >
-            <div className="mx-auto max-w-4xl bg-white rounded-full shadow-xl border border-white p-1.5 flex items-center gap-1 ring-4 ring-fuchsia-200/50">
+            <div className="mx-auto max-w-4xl bg-white rounded-3xl md:rounded-full shadow-xl border border-white p-2 md:p-1.5 flex flex-col md:flex-row items-stretch md:items-center gap-1.5 md:gap-1 ring-4 ring-fuchsia-200/50">
               <div
                 onClick={() => setFocused(focused === "treatment" ? null : "treatment")}
-                className={`flex-1 flex items-center gap-3 px-5 py-3 rounded-full cursor-pointer ${focused === "treatment" ? "bg-gray-50" : "hover:bg-gray-50"}`}
+                className={`flex-1 flex items-center gap-3 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl md:rounded-full cursor-pointer ${focused === "treatment" ? "bg-gray-50" : "hover:bg-gray-50"}`}
               >
-                <Search className="h-5 w-5 text-zinc-500" />
-                <span className="text-[15px] text-zinc-800">All treatments</span>
+                <Search className="h-5 w-5 text-zinc-500 shrink-0" />
+                <span className="text-xs sm:text-[15px] text-zinc-800 font-medium">All treatments</span>
               </div>
               <div
                 onClick={() => setFocused(focused === "where" ? null : "where")}
-                className={`hidden md:flex flex-1 items-center gap-3 px-5 py-3 rounded-full cursor-pointer ${focused === "where" ? "bg-gray-50" : "hover:bg-gray-50"}`}
+                className={`flex flex-1 items-center gap-3 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl md:rounded-full cursor-pointer ${focused === "where" ? "bg-gray-50" : "hover:bg-gray-50"}`}
               >
-                <MapPin className="h-5 w-5 text-zinc-500" />
-                <span className="text-[15px] text-zinc-800">Current location</span>
+                <MapPin className="h-5 w-5 text-zinc-500 shrink-0" />
+                <span className="text-xs sm:text-[15px] text-zinc-800 font-medium">Current location</span>
               </div>
               <div
                 onClick={() => setFocused(focused === "when" ? null : "when")}
-                className={`hidden md:flex flex-1 items-center gap-3 px-5 py-3 rounded-full cursor-pointer ${focused === "when" ? "bg-gray-50" : "hover:bg-gray-50"}`}
+                className={`flex flex-1 items-center gap-3 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl md:rounded-full cursor-pointer ${focused === "when" ? "bg-gray-50" : "hover:bg-gray-50"}`}
               >
-                <Calendar className="h-5 w-5 text-zinc-500" />
-                <span className="text-[15px] text-zinc-800 truncate">{whenLabel}</span>
+                <Calendar className="h-5 w-5 text-zinc-500 shrink-0" />
+                <span className="text-xs sm:text-[15px] text-zinc-800 font-medium truncate">{whenLabel}</span>
                 {(selectedDate || selectedTime) && (
                   <button
                     onClick={(e) => { e.stopPropagation(); setSelectedDate(""); setSelectedTime(""); }}
@@ -146,7 +146,7 @@ function Marketplace() {
                   </button>
                 )}
               </div>
-              <button className="inline-flex items-center rounded-full bg-zinc-900 px-7 py-3 text-[15px] font-semibold text-white hover:bg-zinc-800">
+              <button className="w-full md:w-auto inline-flex items-center justify-center rounded-2xl md:rounded-full bg-zinc-900 px-6 sm:px-7 py-2.5 sm:py-3 text-sm sm:text-[15px] font-semibold text-white hover:bg-zinc-800 transition shrink-0">
                 Search
               </button>
             </div>
@@ -158,7 +158,7 @@ function Marketplace() {
                   initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
-                  className="absolute z-30 left-4 md:left-8 top-full mt-3 w-[min(92vw,540px)] bg-white rounded-3xl shadow-2xl border border-gray-100 p-3 text-left"
+                  className="absolute z-30 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 top-full mt-3 w-[calc(100vw-32px)] max-w-lg md:max-w-xl bg-white rounded-3xl shadow-2xl border border-gray-100 p-3 text-left"
                 >
                   <div className="flex gap-2 overflow-x-auto px-2 pb-3">
                     {treatmentTabs.map((t) => (
@@ -265,7 +265,7 @@ function Marketplace() {
                   initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
-                  className="absolute z-30 right-0 md:right-4 top-full mt-3 w-[min(94vw,640px)] bg-white rounded-3xl shadow-2xl border border-gray-100 p-5 text-left"
+                  className="absolute z-30 left-1/2 -translate-x-1/2 md:left-auto md:right-4 md:translate-x-0 top-full mt-3 w-[calc(100vw-32px)] max-w-lg md:max-w-2xl bg-white rounded-3xl shadow-2xl border border-gray-100 p-4 sm:p-5 text-left"
                 >
                   <div className="grid md:grid-cols-[180px_1fr] gap-5">
                     <div className="flex md:flex-col gap-2 md:gap-3">
@@ -396,10 +396,10 @@ function Marketplace() {
 
 
       {/* Popular categories */}
-      <section className="px-4 sm:px-6 lg:px-8 py-16 bg-zinc-50">
+      <section className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16 bg-zinc-50">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-8">Popular categories</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-6 sm:mb-8">Popular categories</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
             {industries.slice(0, 12).map((i) => (
               <Link
                 key={i.slug}
@@ -409,7 +409,7 @@ function Marketplace() {
               >
                 <img src={i.images[0]} alt={i.name} className="h-full w-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-[1.05] transition-all duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 text-white font-bold text-lg">{i.name}</div>
+                <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 text-white font-bold text-sm sm:text-base md:text-lg">{i.name}</div>
               </Link>
             ))}
           </div>
@@ -417,29 +417,29 @@ function Marketplace() {
       </section>
 
       {/* Download app */}
-      <section className="px-4 sm:px-6 lg:px-8 py-24">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+      <section className="px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           <div>
-            <div className="flex items-center gap-3 text-sm font-semibold">
+            <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold">
               Available on
-              <Apple className="h-5 w-5" />
+              <Apple className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="font-bold">G</span>
             </div>
-            <h2 className="mt-4 text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.02]">
-              Download the<br /> Saloon System app
+            <h2 className="mt-3 sm:mt-4 text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
+              Download the Saloon System app
             </h2>
-            <p className="mt-5 text-lg text-zinc-600 max-w-md">
+            <p className="mt-3 sm:mt-5 text-sm sm:text-base md:text-lg text-zinc-600 max-w-md">
               Book unforgettable beauty and wellness experiences with the Saloon System mobile app
             </p>
-            <div className="mt-8 flex gap-3">
-              <button className="inline-flex items-center gap-2 rounded-xl bg-zinc-900 text-white px-5 py-3">
+            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3">
+              <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-900 text-white px-5 py-3 hover:bg-zinc-800 transition">
                 <Apple className="h-5 w-5" />
                 <div className="text-left leading-tight">
                   <div className="text-[10px]">Download on the</div>
                   <div className="text-sm font-semibold">App Store</div>
                 </div>
               </button>
-              <button className="inline-flex items-center gap-2 rounded-xl bg-zinc-900 text-white px-5 py-3">
+              <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-900 text-white px-5 py-3 hover:bg-zinc-800 transition">
                 <span className="font-bold">G</span>
                 <div className="text-left leading-tight">
                   <div className="text-[10px]">Get it on</div>
@@ -448,11 +448,11 @@ function Marketplace() {
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-zinc-100 aspect-[9/16]">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="rounded-3xl overflow-hidden shadow-2xl border-4 sm:border-8 border-white bg-zinc-100 aspect-[9/16]">
               <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80" alt="Saloon System app" className="h-full w-full object-cover" />
             </div>
-            <div className="rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-zinc-100 aspect-[9/16] mt-8">
+            <div className="rounded-3xl overflow-hidden shadow-2xl border-4 sm:border-8 border-white bg-zinc-100 aspect-[9/16] mt-6 sm:mt-8">
               <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&q=80" alt="Saloon System map" className="h-full w-full object-cover" />
             </div>
           </div>
@@ -460,15 +460,15 @@ function Marketplace() {
       </section>
 
       {/* Browse by city */}
-      <section className="px-4 sm:px-6 lg:px-8 py-16 border-t border-gray-100">
+      <section className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16 border-t border-gray-100">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">Browse by City</h2>
-          <div className="mt-6 flex gap-2 overflow-x-auto pb-2">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">Browse by City</h2>
+          <div className="mt-4 sm:mt-6 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
             {countries.map((c) => (
               <button
                 key={c}
                 onClick={() => setActiveCountry(c)}
-                className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium ${
+                className={`shrink-0 rounded-full border px-4 py-1.5 text-xs sm:text-sm font-medium transition ${
                   activeCountry === c ? "bg-zinc-900 text-white border-zinc-900" : "bg-white text-zinc-800 border-gray-200 hover:bg-gray-50"
                 }`}
               >
@@ -476,11 +476,11 @@ function Marketplace() {
               </button>
             ))}
           </div>
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-6 text-sm">
+          <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 sm:gap-x-8 gap-y-6 text-sm">
             {cities.slice(0, 4).map((city) => (
               <div key={city}>
-                <div className="font-semibold text-zinc-900 mb-3">{city}</div>
-                <ul className="space-y-1.5 text-indigo-600">
+                <div className="font-semibold text-zinc-900 mb-2 sm:mb-3 text-base sm:text-sm">{city}</div>
+                <ul className="space-y-1.5 text-indigo-600 text-xs sm:text-sm">
                   {["Hair Salons", "Nail Salons", "Eyebrows & Lashes", "Beauty Salons", "Barbers", "Massages", "Spas & Saunas", "Waxing Salons"].map((s) => (
                     <li key={s}><a href="#" className="hover:underline">{s} in {city}</a></li>
                   ))}
@@ -512,12 +512,12 @@ function VenueRow({ title, subtitle, venues: items, badge, firstBadge }: VenueRo
     el.scrollBy({ left: dir * el.clientWidth * 0.9, behavior: "smooth" });
   };
   return (
-    <section className="px-4 sm:px-6 lg:px-8 py-12">
+    <section className="px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-end justify-between mb-6">
+        <div className="flex items-end justify-between mb-4 sm:mb-6">
           <div>
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">{title}</h2>
-            {subtitle && <p className="mt-2 text-zinc-600">{subtitle}</p>}
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">{title}</h2>
+            {subtitle && <p className="mt-1.5 sm:mt-2 text-xs sm:text-base text-zinc-600">{subtitle}</p>}
           </div>
           <button
             onClick={() => scrollBy(-1)}
@@ -536,7 +536,7 @@ function VenueRow({ title, subtitle, venues: items, badge, firstBadge }: VenueRo
         </div>
         <div
           ref={scroller}
-          className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-none"
+          className="flex gap-4 sm:gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-none"
           style={{ scrollbarWidth: "none" }}
         >
           {items.map((v, i) => {
@@ -546,7 +546,7 @@ function VenueRow({ title, subtitle, venues: items, badge, firstBadge }: VenueRo
                 key={v.slug + i}
                 to="/venue/$slug"
                 params={{ slug: v.slug }}
-                className="group shrink-0 snap-start w-[78%] sm:w-[46%] lg:w-[calc((100%-60px)/4)] block"
+                className="group shrink-0 snap-start w-[84%] sm:w-[46%] lg:w-[calc((100%-60px)/4)] block"
               >
                 <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100">
                   <img
@@ -561,22 +561,22 @@ function VenueRow({ title, subtitle, venues: items, badge, firstBadge }: VenueRo
                   )}
                   <button
                     onClick={(e) => { e.preventDefault(); }}
-                    className="absolute top-3 right-3 grid place-items-center h-8 w-8 rounded-full bg-white/80 backdrop-blur text-zinc-800 hover:bg-white"
+                    className="absolute top-3 right-3 grid place-items-center h-8 w-8 rounded-full bg-white/80 backdrop-blur text-zinc-800 hover:bg-white transition"
                     aria-label="Favorite"
                   >
                     <Heart className="h-4 w-4" />
                   </button>
                 </div>
-                <div className="pt-4">
+                <div className="pt-3 sm:pt-4">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="font-semibold text-[17px] truncate">{v.name}</div>
-                    <div className="flex items-center gap-1 text-sm shrink-0">
-                      <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    <div className="font-semibold text-base sm:text-[17px] truncate">{v.name}</div>
+                    <div className="flex items-center gap-1 text-xs sm:text-sm shrink-0">
+                      <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-amber-400 text-amber-400" />
                       <span className="font-semibold">{v.rating.toFixed(1)}</span>
                     </div>
                   </div>
-                  <div className="text-sm text-zinc-500 truncate">{v.city}, {v.country}</div>
-                  <div className="mt-1 text-sm text-zinc-500">
+                  <div className="text-xs sm:text-sm text-zinc-500 truncate">{v.city}, {v.country}</div>
+                  <div className="mt-1 text-xs sm:text-sm text-zinc-500">
                     {v.category} <span className="text-zinc-400">· {v.reviews.toLocaleString()} reviews</span>
                   </div>
                 </div>

@@ -7,25 +7,34 @@ import { MapPin, Star } from "lucide-react";
 
 type SearchParams = {
   q?: string;
+  location?: string;
 };
 
 export const Route = createFileRoute("/search")({
   validateSearch: (search: Record<string, unknown>): SearchParams => {
     return {
       q: typeof search.q === "string" ? search.q : undefined,
+      location: typeof search.location === "string" ? search.location : undefined,
     };
   },
   component: SearchResults,
 });
 
 function SearchResults() {
-  const { q } = Route.useSearch();
+  const { q, location } = Route.useSearch();
   const [page, setPage] = useState(1);
   const query = (q || "").trim().toLowerCase();
+  const locQuery = (location || "").trim().toLowerCase();
   const words = query.split(/\s+/).filter(Boolean);
   
-  // Try exact / multi-word match first
+  // Filter by query and location
   let results = venues.filter(v => {
+    if (locQuery) {
+      const matchLoc = v.city.toLowerCase().includes(locQuery) || 
+                       v.country.toLowerCase().includes(locQuery) || 
+                       v.address.toLowerCase().includes(locQuery);
+      if (!matchLoc) return false;
+    }
     if (!query) return true;
     if (v.name.toLowerCase().includes(query)) return true;
     if (v.category.toLowerCase().includes(query)) return true;
@@ -38,6 +47,12 @@ function SearchResults() {
   // If no exact match, try matching any individual word (e.g. "Hair" or "Spa")
   if (results.length === 0 && words.length > 0) {
     results = venues.filter(v => {
+      if (locQuery) {
+        const matchLoc = v.city.toLowerCase().includes(locQuery) || 
+                         v.country.toLowerCase().includes(locQuery) || 
+                         v.address.toLowerCase().includes(locQuery);
+        if (!matchLoc) return false;
+      }
       return words.some(w => 
         v.name.toLowerCase().includes(w) ||
         v.category.toLowerCase().includes(w) ||

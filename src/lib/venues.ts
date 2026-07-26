@@ -41,6 +41,14 @@ export const countries = [
   "United Arab Emirates", "Saudi Arabia", "Qatar", "Kuwait", "Oman"
 ];
 
+export const countryCitiesMap: Record<string, string[]> = {
+  "United Arab Emirates": ["Dubai", "Abu Dhabi", "Sharjah", "Al Ain"],
+  "Saudi Arabia": ["Riyadh", "Jeddah", "Khobar", "Dammam"],
+  "Qatar": ["Doha", "Lusail", "Al Rayyan", "Al Wakrah"],
+  "Kuwait": ["Kuwait City", "Salmiya", "Hawally", "Ahmadi"],
+  "Oman": ["Muscat", "Salalah", "Sohar", "Nizwa"],
+};
+
 const GCC_LOCATIONS = [
   { city: "Dubai", country: "United Arab Emirates", currency: "AED", addresses: ["Building 17, Street 14, Dubai", "403 Jumeirah Beach Rd, Dubai", "Downtown Boulevard, Dubai", "Dubai Marina Promenade, Dubai"] },
   { city: "Abu Dhabi", country: "United Arab Emirates", currency: "AED", addresses: ["Corniche Rd, Al Rasah, Abu Dhabi", "Galleria Mall, Maryah Island, Abu Dhabi"] },

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, MapPin, Calendar, Star, ArrowRight, Apple, QrCode, Navigation2, X, Heart, ChevronRight } from "lucide-react";
 import { useRef } from "react";
 import { MarketplaceHeader, MarketplaceFooter } from "@/components/marketplace-chrome";
-import { venues, cities, countries } from "@/lib/venues";
+import { venues, cities, countries, countryCitiesMap } from "@/lib/venues";
 import { industries } from "@/lib/industries";
 import { treatmentCategories } from "@/lib/treatments";
 
@@ -46,10 +46,14 @@ function fmtDate(offsetDays: number) {
 function Marketplace() {
   const [tab, setTab] = useState<(typeof treatmentTabs)[number]["key"]>("professionals");
   const [focused, setFocused] = useState<null | "treatment" | "where" | "when">(null);
-  const [activeCountry, setActiveCountry] = useState("Mexico");
+  const [activeCountry, setActiveCountry] = useState("United Arab Emirates");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
   const featured = venues;
+
+  const activeCities = useMemo(() => {
+    return countryCitiesMap[activeCountry] || ["Dubai", "Abu Dhabi", "Sharjah", "Al Ain"];
+  }, [activeCountry]);
 
   // Animated counter — ticks up like the video
   const [count, setCount] = useState(324715);
@@ -477,12 +481,20 @@ function Marketplace() {
             ))}
           </div>
           <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 sm:gap-x-8 gap-y-6 text-sm">
-            {cities.slice(0, 4).map((city) => (
+            {activeCities.map((city) => (
               <div key={city}>
                 <div className="font-semibold text-zinc-900 mb-2 sm:mb-3 text-base sm:text-sm">{city}</div>
-                <ul className="space-y-1.5 text-indigo-600 text-xs sm:text-sm">
+                <ul className="space-y-1.5 text-xs sm:text-sm">
                   {["Hair Salons", "Nail Salons", "Eyebrows & Lashes", "Beauty Salons", "Barbers", "Massages", "Spas & Saunas", "Waxing Salons"].map((s) => (
-                    <li key={s}><a href="#" className="hover:underline">{s} in {city}</a></li>
+                    <li key={s}>
+                      <Link
+                        to="/search"
+                        search={{ q: s, location: city }}
+                        className="text-indigo-600 hover:text-indigo-800 hover:underline transition"
+                      >
+                        {s} in {city}
+                      </Link>
+                    </li>
                   ))}
                 </ul>
               </div>

@@ -220,8 +220,8 @@ function BookingPage() {
     <div className="min-h-screen bg-zinc-50 text-zinc-900" style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}>
       <MarketplaceHeader />
 
-      <div className="pt-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
+      <div className="pt-20 px-3 sm:px-6 lg:px-8 max-w-full overflow-x-hidden">
+        <div className="max-w-6xl mx-auto w-full">
           <button
             onClick={() => navigate({ to: "/venue/$slug", params: { slug: venue.slug } })}
             className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-900 mb-3"
@@ -230,12 +230,12 @@ function BookingPage() {
           </button>
 
           {/* Stepper */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-3 overflow-x-auto pb-1 scrollbar-none">
             {(["details", "payment", "confirm"] as Step[]).map((s, i) => {
               const active = step === s;
               const done = (step === "payment" && s === "details") || (step === "confirm" && s !== "confirm");
               return (
-                <div key={s} className="flex items-center gap-2">
+                <div key={s} className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                   <div className={`h-6 w-6 rounded-full grid place-items-center text-xs font-semibold border ${
                     active ? "bg-zinc-900 text-white border-zinc-900" :
                     done ? "bg-emerald-500 text-white border-emerald-500" :
@@ -248,9 +248,9 @@ function BookingPage() {
             })}
           </div>
 
-          <div className="grid lg:grid-cols-[1fr_320px] gap-4 pb-8">
+          <div className="grid lg:grid-cols-[1fr_320px] gap-4 pb-8 w-full max-w-full">
             {/* Left */}
-            <div>
+            <div className="w-full min-w-0">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={step}
@@ -258,7 +258,7 @@ function BookingPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.25 }}
-                  className="bg-white rounded-2xl border border-gray-200 p-4"
+                  className="bg-white rounded-2xl border border-gray-200 p-3.5 sm:p-5 w-full max-w-full overflow-hidden"
                 >
                   {step === "details" && (
                     <>
@@ -266,7 +266,7 @@ function BookingPage() {
                       <p className="text-xs text-zinc-500 mb-3">Choose services, pick a slot and add your contact info.</p>
 
                       <h2 className="text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Services</h2>
-                      <div className="space-y-1 mb-3">
+                      <div className="space-y-1 mb-3 w-full">
                         {venue.services.map((s) => {
                           const isSel = selectedNames.includes(s.name);
                           return (
@@ -285,10 +285,10 @@ function BookingPage() {
                                 {isSel && <Check className="h-2.5 w-2.5" />}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="text-xs font-semibold">{s.name}</div>
+                                <div className="text-xs font-semibold truncate">{s.name}</div>
                                 <div className="text-[10px] text-zinc-500">{s.duration} · {s.category}</div>
                               </div>
-                              <div className="font-semibold text-xs whitespace-nowrap">{s.price}</div>
+                              <div className="font-semibold text-xs whitespace-nowrap shrink-0">{s.price}</div>
                             </button>
                           );
                         })}
@@ -296,12 +296,12 @@ function BookingPage() {
                       {errors.services && <p className="text-sm text-rose-600 -mt-3 mb-4">{errors.services}</p>}
 
                       <h2 className="text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Date</h2>
-                      <div className="flex gap-1.5 overflow-x-auto pb-1 mb-1">
+                      <div className="flex gap-1.5 overflow-x-auto pb-1 mb-1 max-w-full scrollbar-none">
                         {dateOptions.map((d) => (
                           <button
                             key={d.value}
                             onClick={() => setDate(d.value)}
-                            className={`shrink-0 rounded-lg border px-2 py-1.5 text-center min-w-[56px] ${
+                            className={`shrink-0 rounded-lg border px-2.5 py-1.5 text-center min-w-[56px] ${
                               date === d.value ? "border-zinc-900 bg-zinc-900 text-white" : "border-gray-200 hover:border-zinc-400"
                             }`}
                           >
@@ -313,12 +313,12 @@ function BookingPage() {
                       {errors.date && <p className="text-xs text-rose-600 mb-2">{errors.date}</p>}
 
                       <h2 className="text-[10px] font-bold uppercase tracking-wide text-zinc-500 mt-3 mb-1.5">Time</h2>
-                      <div className="grid grid-cols-5 sm:grid-cols-7 gap-1.5 mb-1">
+                      <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-7 gap-1.5 mb-1 w-full">
                         {timeOptions.map((t) => (
                           <button
                             key={t}
                             onClick={() => setTime(t)}
-                            className={`rounded-md border py-1 text-[11px] font-medium ${
+                            className={`rounded-md border py-1.5 text-[11px] font-medium text-center ${
                               time === t ? "border-zinc-900 bg-zinc-900 text-white" : "border-gray-200 hover:border-zinc-400"
                             }`}
                           >
@@ -546,8 +546,8 @@ function BookingPage() {
             </div>
 
             {/* Right summary */}
-            <aside className="lg:sticky lg:top-20 self-start">
-              <div className="rounded-2xl border border-gray-200 bg-white p-4">
+            <aside className="lg:sticky lg:top-20 self-start w-full min-w-0">
+              <div className="rounded-2xl border border-gray-200 bg-white p-3.5 sm:p-4 w-full max-w-full overflow-hidden">
                 <div className="flex items-center gap-2.5 mb-2">
                   <img src={venue.images[0]} className="h-8 w-8 rounded-md object-cover shrink-0" alt="" />
                   <div className="min-w-0">
@@ -610,14 +610,14 @@ function Field({
   error?: string;
 }) {
   return (
-    <div>
+    <div className="w-full min-w-0">
       <label className="block text-[10px] font-semibold text-zinc-600 mb-0.5">{label}</label>
-      <div className={`flex items-center gap-1.5 rounded-lg border px-2 py-1.5 focus-within:ring-1 focus-within:ring-zinc-900 ${error ? "border-rose-400" : "border-gray-200"}`}>
-        <span className="text-zinc-400">{icon}</span>
+      <div className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 focus-within:ring-1 focus-within:ring-zinc-900 ${error ? "border-rose-400" : "border-gray-200"}`}>
+        <span className="text-zinc-400 shrink-0">{icon}</span>
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 bg-transparent text-xs focus:outline-none"
+          className="w-full min-w-0 flex-1 bg-transparent text-xs focus:outline-none"
         />
       </div>
       {error && <p className="text-[10px] text-rose-600 mt-0.5">{error}</p>}

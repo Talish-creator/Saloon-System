@@ -82,6 +82,8 @@ function ReceiptPage() {
   const { id } = Route.useParams();
   const [b, setB] = useState<StoredBooking | undefined>(undefined);
   const [loaded, setLoaded] = useState(false);
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const [emailNotice, setEmailNotice] = useState<string | null>(null);
 
   useEffect(() => {
     const found = findBooking(id);
@@ -98,9 +100,6 @@ function ReceiptPage() {
 
   if (!loaded) return <div className="min-h-screen bg-zinc-50" />;
   if (!b) throw notFound();
-
-  const [resendingEmail, setResendingEmail] = useState(false);
-  const [emailNotice, setEmailNotice] = useState<string | null>(null);
 
   async function handleResendEmail() {
     if (!b || !b.customer.email) return;

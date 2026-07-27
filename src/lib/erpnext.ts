@@ -1,7 +1,13 @@
 // Utility module for connecting to ERPNext REST API endpoints
 
 export function getERPNextConfig() {
-  const url = process.env.ERPNEXT_URL || "https://key.solutions.bitvera.co";
+  let url = process.env.ERPNEXT_URL || "https://key.solutions.bitvera.co";
+  
+  // Enforce secure HTTPS domain to prevent SSL hostname mismatch errors on IP
+  if (url.includes("64.23.169.171") || !url.startsWith("https://")) {
+    url = "https://key.solutions.bitvera.co";
+  }
+
   const apiKey = process.env.ERPNEXT_API_KEY || "45ec974ff12c04b";
   const apiSecret = process.env.ERPNEXT_API_SECRET || "4179a5d5fc9909d";
 

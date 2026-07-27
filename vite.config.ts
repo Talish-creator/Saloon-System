@@ -6,7 +6,6 @@ import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  base: "/saloon-app/",
   plugins: [
     tanstackStart({
       server: { entry: "server" },
@@ -14,7 +13,7 @@ export default defineConfig({
         customViteReactPlugin: true
       }
     }),
-    nitro({ preset: 'node-server', baseURL: '/saloon-app/' }),
+    nitro({ preset: 'node-server' }),
     viteReact(),
     tailwindcss(),
     tsconfigPaths(),

@@ -84,8 +84,8 @@ function BookingPage() {
   const selectedServices = venue.services.filter((s) => selectedNames.includes(s.name));
 
   const [step, setStep] = useState<Step>("details");
-  const [date, setDate] = useState(search.date || "");
-  const [time, setTime] = useState(search.time || "");
+  const [date, setDate] = useState(search.date || new Date().toISOString().slice(0, 10));
+  const [time, setTime] = useState(search.time || "10:00");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");

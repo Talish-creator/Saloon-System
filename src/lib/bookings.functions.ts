@@ -61,7 +61,7 @@ export const createBooking = createServerFn({ method: "POST" })
         }
       }
 
-      // 2. Create Appointment Document in ERPNext (Strict ERPNext CRM field compliance)
+      // 2. Try inserting into Appointment DocType
       const erpPayload = {
         doctype: "Appointment",
         title: `Saloon Booking ${bookingId} - ${data.customer.name}`,
@@ -80,20 +80,54 @@ export const createBooking = createServerFn({ method: "POST" })
         total: data.total,
         payment_method: data.paymentMethod,
         payment_ref: data.paymentRef ?? null,
-        status: "Scheduled", // Standard Frappe CRM status
+        status: "Scheduled",
         external_id: bookingId,
         notes: `Ref: ${bookingId} | Services: ${data.services.map((s) => s.name).join(", ")} | Total: ${data.total} | Payment: ${initialStatus}`,
       };
 
-      const res = await erpnextRequest<{ name?: string }>("resource/Appointment", {
+      let res = await erpnextRequest<{ name?: string }>("resource/Appointment", {
         method: "POST",
         body: JSON.stringify(erpPayload),
       });
 
+      // 3. Fallback to Saloon Booking DocType if Appointment failed
+      if (!res.success) {
+        res = await erpnextRequest<{ name?: string }>("resource/Saloon Booking", {
+          method: "POST",
+          body: JSON.stringify({
+            doctype: "Saloon Booking",
+            booking_id: bookingId,
+            customer_name: data.customer.name,
+            customer_email: data.customer.email,
+            customer_phone: data.customer.phone,
+            scheduled_date: data.date,
+            scheduled_time: data.time,
+            services: data.services.map((s) => s.name).join(", "),
+            total: data.total,
+            status: initialStatus,
+          }),
+        });
+      }
+
+      // 4. Fallback to Lead DocType if Saloon Booking failed
+      if (!res.success) {
+        res = await erpnextRequest<{ name?: string }>("resource/Lead", {
+          method: "POST",
+          body: JSON.stringify({
+            doctype: "Lead",
+            lead_name: data.customer.name,
+            email_id: data.customer.email,
+            mobile_no: data.customer.phone,
+            source: "Saloon System Website",
+            notes: `Booking Ref: ${bookingId} | Venue: ${data.venueName} | Date: ${data.date} at ${data.time} | Total: ${data.total}`,
+          }),
+        });
+      }
+
       if (res.success) {
-        console.log(`[ERPNext REST API] Appointment created successfully in ERPNext: ${res.data?.name || bookingId}`);
+        console.log(`[ERPNext REST API] Document created successfully in ERPNext: ${res.data?.name || bookingId}`);
       } else {
-        console.warn(`[ERPNext REST API Warning] Appointment creation failed: ${res.error}`);
+        console.warn(`[ERPNext REST API Warning] Sync error: ${res.error}`);
       }
     } else {
       console.log("[ERPNext Local Mode] Booking logged locally:", bookingId);

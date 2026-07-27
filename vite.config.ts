@@ -13,7 +13,7 @@ export default defineConfig({
         customViteReactPlugin: true
       }
     }),
-    nitro({ preset: 'vercel' }),
+    nitro({ preset: 'node-server' }),
     viteReact(),
     tailwindcss(),
     tsconfigPaths(),

@@ -36,10 +36,9 @@ export const createBooking = createServerFn({ method: "POST" })
     const erpConfig = getERPNextConfig();
 
     if (erpConfig.isConfigured) {
-      // Complete All-in-One DocType payload for "Saloon Booking"
+      // Clean Saloon Booking DocType payload
       const saloonBookingPayload = {
         doctype: "Saloon Booking",
-        name: bookingId,
         booking_id: bookingId,
         customer_name: data.customer.name,
         customer_email: data.customer.email,
@@ -67,28 +66,6 @@ export const createBooking = createServerFn({ method: "POST" })
         res = await erpnextRequest<{ name?: string }>("resource/Saloon Booking", {
           method: "POST",
           body: JSON.stringify(saloonBookingPayload),
-        });
-      }
-
-      // 3. Appointment Fallback
-      if (!res.success) {
-        res = await erpnextRequest<{ name?: string }>("resource/Appointment", {
-          method: "POST",
-          body: JSON.stringify({
-            doctype: "Appointment",
-            title: `Booking ${bookingId} - ${data.customer.name}`,
-            party_name: data.customer.name,
-            customer_name: data.customer.name,
-            customer_email: data.customer.email,
-            customer_phone: data.customer.phone,
-            appointment_date: data.date,
-            appointment_time: data.time,
-            venue: data.venueName,
-            services: data.services.map((s) => s.name).join(", "),
-            total: data.total,
-            status: "Scheduled",
-            external_id: bookingId,
-          }),
         });
       }
 

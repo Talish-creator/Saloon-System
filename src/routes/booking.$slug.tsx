@@ -190,7 +190,6 @@ function BookingPage() {
       try {
         const payload = {
           doctype: "Saloon Booking",
-          name: res.bookingId,
           booking_id: res.bookingId,
           customer_name: name,
           customer_email: email,

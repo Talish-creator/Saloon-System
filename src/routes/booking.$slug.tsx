@@ -188,29 +188,41 @@ function BookingPage() {
 
       // Dual-sync: Direct client REST API request to ERPNext Saloon Booking endpoint
       try {
-        fetch("https://key.solutions.bitvera.co/api/resource/Saloon Booking", {
+        const payload = {
+          doctype: "Saloon Booking",
+          name: res.bookingId,
+          booking_id: res.bookingId,
+          customer_name: name,
+          customer_email: email,
+          customer_phone: phone,
+          venue_name: venue.name,
+          services: selectedServices.map((s) => s.name).join(", "),
+          scheduled_date: date,
+          scheduled_time: time,
+          total: totalStr,
+          payment_method: paymentMethod,
+          payment_ref: paymentRef ?? null,
+          status: res.status,
+          notes: notes || "",
+        };
+
+        fetch("https://key.solutions.bitvera.co/api/method/frappe.client.insert", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: "token 45ec974ff12c04b:4179a5d5fc9909d",
           },
-          body: JSON.stringify({
-            doctype: "Saloon Booking",
-            booking_id: res.bookingId,
-            customer_name: name,
-            customer_email: email,
-            customer_phone: phone,
-            venue_name: venue.name,
-            services: selectedServices.map((s) => s.name).join(", "),
-            scheduled_date: date,
-            scheduled_time: time,
-            total: totalStr,
-            payment_method: paymentMethod,
-            payment_ref: paymentRef ?? null,
-            status: res.status,
-            notes: notes || "",
-          }),
-        }).catch(() => {});
+          body: JSON.stringify({ doc: payload }),
+        }).catch(() => {
+          fetch("https://key.solutions.bitvera.co/api/resource/Saloon Booking", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "token 45ec974ff12c04b:4179a5d5fc9909d",
+            },
+            body: JSON.stringify(payload),
+          }).catch(() => {});
+        });
       } catch {}
 
       setBooking(res);

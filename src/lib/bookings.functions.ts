@@ -36,9 +36,10 @@ export const createBooking = createServerFn({ method: "POST" })
     const erpConfig = getERPNextConfig();
 
     if (erpConfig.isConfigured) {
-      // Single All-in-One DocType payload for "Saloon Booking"
+      // Complete All-in-One DocType payload for "Saloon Booking"
       const saloonBookingPayload = {
         doctype: "Saloon Booking",
+        name: bookingId,
         booking_id: bookingId,
         customer_name: data.customer.name,
         customer_email: data.customer.email,
@@ -54,13 +55,21 @@ export const createBooking = createServerFn({ method: "POST" })
         notes: data.customer.notes || "",
       };
 
-      // 1. Primary Target: Create "Saloon Booking" DocType
-      let res = await erpnextRequest<{ name?: string }>("resource/Saloon Booking", {
+      // 1. Frappe Method API: frappe.client.insert
+      let res = await erpnextRequest<{ name?: string }>("method/frappe.client.insert", {
         method: "POST",
-        body: JSON.stringify(saloonBookingPayload),
+        body: JSON.stringify({ doc: saloonBookingPayload }),
       });
 
-      // 2. Secondary Fallback: Create "Appointment" DocType if Saloon Booking DocType is not created yet
+      // 2. Resource API Fallback: resource/Saloon Booking
+      if (!res.success) {
+        res = await erpnextRequest<{ name?: string }>("resource/Saloon Booking", {
+          method: "POST",
+          body: JSON.stringify(saloonBookingPayload),
+        });
+      }
+
+      // 3. Appointment Fallback
       if (!res.success) {
         res = await erpnextRequest<{ name?: string }>("resource/Appointment", {
           method: "POST",
@@ -85,7 +94,7 @@ export const createBooking = createServerFn({ method: "POST" })
       if (res.success) {
         console.log(`[ERPNext REST API] Booking created successfully in ERPNext: ${res.data?.name || bookingId}`);
       } else {
-        console.warn(`[ERPNext REST API Warning] Sync notice: ${res.error}`);
+        console.warn(`[ERPNext REST API Warning] Sync error: ${res.error}`);
       }
     } else {
       console.log("[ERPNext Local Mode] Booking logged locally:", bookingId);

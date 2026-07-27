@@ -1,13 +1,15 @@
+import { useEffect, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
+  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 
@@ -118,8 +120,27 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+}
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const currentPath = location.pathname + location.search;
+    if (currentPath && currentPath !== "/") {
+      sessionStorage.setItem("saloon_last_active_route", currentPath);
+    }
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const savedRoute = sessionStorage.getItem("saloon_last_active_route");
+    if (savedRoute && location.pathname === "/" && savedRoute !== "/") {
+      navigate({ to: savedRoute });
+    }
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

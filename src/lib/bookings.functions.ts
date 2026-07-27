@@ -45,6 +45,7 @@ export const createBooking = createServerFn({ method: "POST" })
         customer_email: data.customer.email,
         customer_phone: data.customer.phone,
         venue_name: data.venueName,
+        vvenue_name: data.venueName,
         services: data.services.map((s) => s.name).join(", "),
         scheduled_date: data.date,
         scheduled_time: data.time,

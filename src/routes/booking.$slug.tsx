@@ -196,6 +196,7 @@ function BookingPage() {
           customer_email: email,
           customer_phone: phone,
           venue_name: venue.name,
+          vvenue_name: venue.name,
           services: selectedServices.map((s) => s.name).join(", "),
           scheduled_date: date,
           scheduled_time: time,

@@ -36,24 +36,36 @@ export const createBooking = createServerFn({ method: "POST" })
     const erpConfig = getERPNextConfig();
 
     if (erpConfig.isConfigured) {
-      // 1. Create or ensure Customer in ERPNext
-      const custRes = await erpnextRequest<{ name?: string }>("resource/Customer", {
-        method: "POST",
-        body: JSON.stringify({
-          customer_name: data.customer.name,
-          email_id: data.customer.email,
-          mobile_no: data.customer.phone,
-          customer_type: "Individual",
-        }),
-      });
+      let customerDocName: string | undefined = undefined;
 
-      const customerLink = custRes.data?.name || data.customer.name;
+      // 1. Try to find existing Customer in ERPNext by email or name
+      const findCust = await erpnextRequest<{ name: string }[]>(
+        `resource/Customer?filters=${encodeURIComponent(JSON.stringify([["Customer", "email_id", "=", data.customer.email]]))}&fields=["name"]`
+      );
 
-      // 2. Create Appointment Document in ERPNext (Compatible with CRM & Healthcare modules)
+      if (findCust.success && Array.isArray(findCust.data) && findCust.data.length > 0) {
+        customerDocName = findCust.data[0].name;
+      } else {
+        // Create new Customer in ERPNext
+        const custRes = await erpnextRequest<{ name?: string }>("resource/Customer", {
+          method: "POST",
+          body: JSON.stringify({
+            customer_name: data.customer.name,
+            email_id: data.customer.email,
+            mobile_no: data.customer.phone,
+            customer_type: "Individual",
+          }),
+        });
+        if (custRes.success && custRes.data?.name) {
+          customerDocName = custRes.data.name;
+        }
+      }
+
+      // 2. Create Appointment Document in ERPNext
       const erpPayload = {
         doctype: "Appointment",
         title: `Saloon Booking ${bookingId} - ${data.customer.name}`,
-        customer: customerLink,
+        ...(customerDocName ? { customer: customerDocName } : {}),
         customer_name: data.customer.name,
         customer_email: data.customer.email,
         customer_phone: data.customer.phone,
@@ -81,7 +93,7 @@ export const createBooking = createServerFn({ method: "POST" })
       if (res.success) {
         console.log(`[ERPNext REST API] Appointment created successfully in ERPNext: ${res.data?.name || bookingId}`);
       } else {
-        console.warn(`[ERPNext REST API Warning] ERPNext creation fallback active: ${res.error}`);
+        console.warn(`[ERPNext REST API Warning] Appointment creation failed: ${res.error}`);
       }
     } else {
       console.log("[ERPNext Local Mode] Booking logged locally:", bookingId);

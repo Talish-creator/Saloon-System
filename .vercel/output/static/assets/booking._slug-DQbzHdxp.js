@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-DiK4U9sA.js";var t=e(),n=()=>(0,t.jsx)(`div`,{className:`p-10`,children:`Venue not found.`});export{n as notFoundComponent};

@@ -1,0 +1,16 @@
+//#region node_modules/@tanstack/zod-adapter/dist/esm/index.js
+var zodValidator = (options) => {
+	const input = "input" in options ? options.input : "input";
+	const output = "output" in options ? options.output : "output";
+	const _input = "schema" in options ? options.schema._input : options._input;
+	const _output = "schema" in options ? options.schema._output : options._output;
+	return {
+		types: {
+			input: input === "output" ? _output : _input,
+			output: output === "input" ? _input : _output
+		},
+		parse: (input) => "schema" in options ? options.schema.parse(input) : options.parse(input)
+	};
+};
+//#endregion
+export { zodValidator as t };

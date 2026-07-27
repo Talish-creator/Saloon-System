@@ -61,11 +61,11 @@ export const createBooking = createServerFn({ method: "POST" })
         }
       }
 
-      // 2. Create Appointment Document in ERPNext
+      // 2. Create Appointment Document in ERPNext (Strict ERPNext CRM field compliance)
       const erpPayload = {
         doctype: "Appointment",
         title: `Saloon Booking ${bookingId} - ${data.customer.name}`,
-        ...(customerDocName ? { customer: customerDocName } : {}),
+        ...(customerDocName ? { customer: customerDocName, party_name: customerDocName } : { party_name: data.customer.name }),
         customer_name: data.customer.name,
         customer_email: data.customer.email,
         customer_phone: data.customer.phone,
@@ -80,9 +80,9 @@ export const createBooking = createServerFn({ method: "POST" })
         total: data.total,
         payment_method: data.paymentMethod,
         payment_ref: data.paymentRef ?? null,
-        status: initialStatus,
+        status: "Scheduled", // Standard Frappe CRM status
         external_id: bookingId,
-        notes: `Services: ${data.services.map((s) => s.name).join(", ")} | Total: ${data.total} | Ref: ${bookingId}`,
+        notes: `Ref: ${bookingId} | Services: ${data.services.map((s) => s.name).join(", ")} | Total: ${data.total} | Payment: ${initialStatus}`,
       };
 
       const res = await erpnextRequest<{ name?: string }>("resource/Appointment", {

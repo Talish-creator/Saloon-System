@@ -1,9 +1,9 @@
 // Utility module for connecting to ERPNext REST API endpoints
 
 export function getERPNextConfig() {
-  const url = process.env.ERPNEXT_URL || "http://127.0.0.1:8000";
-  const apiKey = process.env.ERPNEXT_API_KEY || "";
-  const apiSecret = process.env.ERPNEXT_API_SECRET || "";
+  const url = process.env.ERPNEXT_URL || "https://key.solutions.bitvera.co";
+  const apiKey = process.env.ERPNEXT_API_KEY || "45ec974ff12c04b";
+  const apiSecret = process.env.ERPNEXT_API_SECRET || "4179a5d5fc9909d";
 
   const isConfigured = Boolean(apiKey && apiSecret);
 

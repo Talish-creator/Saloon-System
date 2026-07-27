@@ -130,15 +130,15 @@ function RootComponent() {
     if (typeof window === "undefined") return;
     const currentPath = location.pathname + location.search;
     if (currentPath && currentPath !== "/") {
-      sessionStorage.setItem("saloon_last_active_route", currentPath);
+      localStorage.setItem("saloon_last_active_route", currentPath);
     }
   }, [location.pathname, location.search]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const savedRoute = sessionStorage.getItem("saloon_last_active_route");
-    if (savedRoute && location.pathname === "/" && savedRoute !== "/") {
-      navigate({ to: savedRoute });
+    const savedRoute = localStorage.getItem("saloon_last_active_route");
+    if (savedRoute && window.location.pathname === "/" && savedRoute !== "/") {
+      window.location.replace(savedRoute);
     }
   }, []);
 

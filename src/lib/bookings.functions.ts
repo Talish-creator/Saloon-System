@@ -37,7 +37,7 @@ export const createBooking = createServerFn({ method: "POST" })
 
     if (erpConfig.isConfigured) {
       // 1. Create or ensure Customer in ERPNext
-      await erpnextRequest("resource/Customer", {
+      const custRes = await erpnextRequest<{ name?: string }>("resource/Customer", {
         method: "POST",
         body: JSON.stringify({
           customer_name: data.customer.name,
@@ -47,12 +47,20 @@ export const createBooking = createServerFn({ method: "POST" })
         }),
       });
 
-      // 2. Create Appointment Document in ERPNext
+      const customerLink = custRes.data?.name || data.customer.name;
+
+      // 2. Create Appointment Document in ERPNext (Compatible with CRM & Healthcare modules)
       const erpPayload = {
         doctype: "Appointment",
+        title: `Saloon Booking ${bookingId} - ${data.customer.name}`,
+        customer: customerLink,
         customer_name: data.customer.name,
         customer_email: data.customer.email,
         customer_phone: data.customer.phone,
+        email: data.customer.email,
+        phone: data.customer.phone,
+        appointment_date: data.date,
+        appointment_time: data.time,
         scheduled_date: data.date,
         scheduled_time: data.time,
         venue: data.venueName,
@@ -62,6 +70,7 @@ export const createBooking = createServerFn({ method: "POST" })
         payment_ref: data.paymentRef ?? null,
         status: initialStatus,
         external_id: bookingId,
+        notes: `Services: ${data.services.map((s) => s.name).join(", ")} | Total: ${data.total} | Ref: ${bookingId}`,
       };
 
       const res = await erpnextRequest<{ name?: string }>("resource/Appointment", {
@@ -72,7 +81,7 @@ export const createBooking = createServerFn({ method: "POST" })
       if (res.success) {
         console.log(`[ERPNext REST API] Appointment created successfully in ERPNext: ${res.data?.name || bookingId}`);
       } else {
-        console.warn(`[ERPNext REST API Warning] Fallback active: ${res.error}`);
+        console.warn(`[ERPNext REST API Warning] ERPNext creation fallback active: ${res.error}`);
       }
     } else {
       console.log("[ERPNext Local Mode] Booking logged locally:", bookingId);
@@ -155,7 +164,6 @@ export const sendReceiptEmail = createServerFn({ method: "POST" })
     const erpConfig = getERPNextConfig();
 
     if (erpConfig.isConfigured) {
-      // Trigger ERPNext Send Email REST API for Appointment invoice
       await erpnextRequest("method/frappe.core.doctype.communication.email.make", {
         method: "POST",
         body: JSON.stringify({

@@ -36,98 +36,56 @@ export const createBooking = createServerFn({ method: "POST" })
     const erpConfig = getERPNextConfig();
 
     if (erpConfig.isConfigured) {
-      let customerDocName: string | undefined = undefined;
-
-      // 1. Try to find existing Customer in ERPNext by email or name
-      const findCust = await erpnextRequest<{ name: string }[]>(
-        `resource/Customer?filters=${encodeURIComponent(JSON.stringify([["Customer", "email_id", "=", data.customer.email]]))}&fields=["name"]`
-      );
-
-      if (findCust.success && Array.isArray(findCust.data) && findCust.data.length > 0) {
-        customerDocName = findCust.data[0].name;
-      } else {
-        // Create new Customer in ERPNext
-        const custRes = await erpnextRequest<{ name?: string }>("resource/Customer", {
-          method: "POST",
-          body: JSON.stringify({
-            customer_name: data.customer.name,
-            email_id: data.customer.email,
-            mobile_no: data.customer.phone,
-            customer_type: "Individual",
-          }),
-        });
-        if (custRes.success && custRes.data?.name) {
-          customerDocName = custRes.data.name;
-        }
-      }
-
-      // 2. Try inserting into Appointment DocType
-      const erpPayload = {
-        doctype: "Appointment",
-        title: `Saloon Booking ${bookingId} - ${data.customer.name}`,
-        ...(customerDocName ? { customer: customerDocName, party_name: customerDocName } : { party_name: data.customer.name }),
+      // Single All-in-One DocType payload for "Saloon Booking"
+      const saloonBookingPayload = {
+        doctype: "Saloon Booking",
+        booking_id: bookingId,
         customer_name: data.customer.name,
         customer_email: data.customer.email,
         customer_phone: data.customer.phone,
-        email: data.customer.email,
-        phone: data.customer.phone,
-        appointment_date: data.date,
-        appointment_time: data.time,
+        venue_name: data.venueName,
+        services: data.services.map((s) => s.name).join(", "),
         scheduled_date: data.date,
         scheduled_time: data.time,
-        venue: data.venueName,
-        services: data.services.map((s) => s.name).join(", "),
         total: data.total,
         payment_method: data.paymentMethod,
         payment_ref: data.paymentRef ?? null,
-        status: "Scheduled",
-        external_id: bookingId,
-        notes: `Ref: ${bookingId} | Services: ${data.services.map((s) => s.name).join(", ")} | Total: ${data.total} | Payment: ${initialStatus}`,
+        status: initialStatus,
+        notes: data.customer.notes || "",
       };
 
-      let res = await erpnextRequest<{ name?: string }>("resource/Appointment", {
+      // 1. Primary Target: Create "Saloon Booking" DocType
+      let res = await erpnextRequest<{ name?: string }>("resource/Saloon Booking", {
         method: "POST",
-        body: JSON.stringify(erpPayload),
+        body: JSON.stringify(saloonBookingPayload),
       });
 
-      // 3. Fallback to Saloon Booking DocType if Appointment failed
+      // 2. Secondary Fallback: Create "Appointment" DocType if Saloon Booking DocType is not created yet
       if (!res.success) {
-        res = await erpnextRequest<{ name?: string }>("resource/Saloon Booking", {
+        res = await erpnextRequest<{ name?: string }>("resource/Appointment", {
           method: "POST",
           body: JSON.stringify({
-            doctype: "Saloon Booking",
-            booking_id: bookingId,
+            doctype: "Appointment",
+            title: `Booking ${bookingId} - ${data.customer.name}`,
+            party_name: data.customer.name,
             customer_name: data.customer.name,
             customer_email: data.customer.email,
             customer_phone: data.customer.phone,
-            scheduled_date: data.date,
-            scheduled_time: data.time,
+            appointment_date: data.date,
+            appointment_time: data.time,
+            venue: data.venueName,
             services: data.services.map((s) => s.name).join(", "),
             total: data.total,
-            status: initialStatus,
-          }),
-        });
-      }
-
-      // 4. Fallback to Lead DocType if Saloon Booking failed
-      if (!res.success) {
-        res = await erpnextRequest<{ name?: string }>("resource/Lead", {
-          method: "POST",
-          body: JSON.stringify({
-            doctype: "Lead",
-            lead_name: data.customer.name,
-            email_id: data.customer.email,
-            mobile_no: data.customer.phone,
-            source: "Saloon System Website",
-            notes: `Booking Ref: ${bookingId} | Venue: ${data.venueName} | Date: ${data.date} at ${data.time} | Total: ${data.total}`,
+            status: "Scheduled",
+            external_id: bookingId,
           }),
         });
       }
 
       if (res.success) {
-        console.log(`[ERPNext REST API] Document created successfully in ERPNext: ${res.data?.name || bookingId}`);
+        console.log(`[ERPNext REST API] Booking created successfully in ERPNext: ${res.data?.name || bookingId}`);
       } else {
-        console.warn(`[ERPNext REST API Warning] Sync error: ${res.error}`);
+        console.warn(`[ERPNext REST API Warning] Sync notice: ${res.error}`);
       }
     } else {
       console.log("[ERPNext Local Mode] Booking logged locally:", bookingId);
@@ -149,15 +107,15 @@ export const getBookingStatuses = createServerFn({ method: "POST" })
     const result: Record<string, { status: string; syncedAt: string }> = {};
 
     if (erpConfig.isConfigured) {
-      const filters = JSON.stringify([["Appointment", "external_id", "in", data.ids]]);
-      const res = await erpnextRequest<{ external_id: string; status: string }[]>(
-        `resource/Appointment?filters=${encodeURIComponent(filters)}&fields=["external_id","status"]`
+      const filters = JSON.stringify([["Saloon Booking", "booking_id", "in", data.ids]]);
+      const res = await erpnextRequest<{ booking_id: string; status: string }[]>(
+        `resource/Saloon Booking?filters=${encodeURIComponent(filters)}&fields=["booking_id","status"]`
       );
 
       if (res.success && Array.isArray(res.data)) {
         for (const item of res.data) {
-          if (item.external_id && item.status) {
-            result[item.external_id] = {
+          if (item.booking_id && item.status) {
+            result[item.booking_id] = {
               status: item.status,
               syncedAt: new Date().toISOString(),
             };
@@ -189,7 +147,7 @@ export const cancelBooking = createServerFn({ method: "POST" })
     const erpConfig = getERPNextConfig();
 
     if (erpConfig.isConfigured) {
-      await erpnextRequest(`resource/Appointment/${encodeURIComponent(data.bookingId)}`, {
+      await erpnextRequest(`resource/Saloon Booking/${encodeURIComponent(data.bookingId)}`, {
         method: "PUT",
         body: JSON.stringify({ status: "Cancelled" }),
       });

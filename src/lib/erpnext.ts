@@ -8,8 +8,8 @@ export function getERPNextConfig() {
     url = "https://key.solutions.bitvera.co";
   }
 
-  const apiKey = process.env.ERPNEXT_API_KEY || "45ec974ff12c04b";
-  const apiSecret = process.env.ERPNEXT_API_SECRET || "4179a5d5fc9909d";
+  const apiKey = process.env.ERPNEXT_API_KEY || "";
+  const apiSecret = process.env.ERPNEXT_API_SECRET || "";
 
   const isConfigured = Boolean(apiKey && apiSecret);
 

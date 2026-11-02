@@ -63,70 +63,82 @@ export function VenueMap({ venueName, address, city = "Dubai", country = "United
       if (!isMounted || !containerRef.current) return;
 
       // Clean up previous instance if exists
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
+      try {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.remove();
+          mapInstanceRef.current = null;
+        }
+        if (containerRef.current) {
+          (containerRef.current as any)._leaflet_id = null;
+        }
 
-      // Create real Leaflet map
-      const map = L.map(containerRef.current, {
-        center: [coords.lat, coords.lon],
-        zoom: 12,
-        zoomControl: true,
-      });
-
-      mapInstanceRef.current = map;
-
-      // Add OpenStreetMap Tile Layer
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-      }).addTo(map);
-
-      // Create Custom HTML Pin Icon
-      const createCustomIcon = (name: string, rating?: number) => {
-        return L.divIcon({
-          className: "custom-leaflet-pin",
-          html: `
-            <div style="transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; cursor: pointer;">
-              <div style="background-color: #18181b; color: white; border-radius: 9999px; padding: 4px 10px; font-weight: 700; font-size: 11px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); border: 2px solid white; white-space: nowrap; display: flex; align-items: center; gap: 4px;">
-                <span style="color: #f472b6;">★</span>
-                <span>${rating ? rating.toFixed(1) : ''} ${name}</span>
-              </div>
-              <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid #18181b; margin-top: -2px;"></div>
-            </div>
-          `,
-          iconSize: [0, 0],
-          iconAnchor: [0, 0],
+        // Create real Leaflet map
+        const map = L.map(containerRef.current, {
+          center: [coords.lat, coords.lon],
+          zoom: 12,
+          zoomControl: true,
         });
-      };
 
-      // Add REAL Leaflet Markers pinned to actual Lat/Lon coordinates!
-      displayPins.forEach((p, idx) => {
-        const latOffset = ((idx * 17) % 50 - 25) * 0.002;
-        const lonOffset = ((idx * 29) % 50 - 25) * 0.002;
-        const pinLat = coords.lat + latOffset;
-        const pinLon = coords.lon + lonOffset;
+        mapInstanceRef.current = map;
 
-        const marker = L.marker([pinLat, pinLon], {
-          icon: createCustomIcon(p.name, p.rating),
+        // Add OpenStreetMap Tile Layer
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          maxZoom: 19,
         }).addTo(map);
 
-        marker.bindPopup(`
-          <div style="font-family: system-ui, sans-serif; padding: 2px;">
-            <strong style="font-size: 13px; color: #111;">${p.name}</strong>
-            <p style="font-size: 11px; color: #666; margin: 4px 0 0 0;">${p.address}</p>
-          </div>
-        `);
-      });
+        // Create Custom HTML Pin Icon
+        const createCustomIcon = (name: string, rating?: number) => {
+          return L.divIcon({
+            className: "custom-leaflet-pin",
+            html: `
+              <div style="transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+                <div style="background-color: #18181b; color: white; border-radius: 9999px; padding: 4px 10px; font-weight: 700; font-size: 11px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); border: 2px solid white; white-space: nowrap; display: flex; align-items: center; gap: 4px;">
+                  <span style="color: #f472b6;">★</span>
+                  <span>${rating ? rating.toFixed(1) : ''} ${name}</span>
+                </div>
+                <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid #18181b; margin-top: -2px;"></div>
+              </div>
+            `,
+            iconSize: [0, 0],
+            iconAnchor: [0, 0],
+          });
+        };
+
+        // Add REAL Leaflet Markers pinned to actual Lat/Lon coordinates!
+        displayPins.forEach((p, idx) => {
+          const latOffset = ((idx * 17) % 50 - 25) * 0.002;
+          const lonOffset = ((idx * 29) % 50 - 25) * 0.002;
+          const pinLat = coords.lat + latOffset;
+          const pinLon = coords.lon + lonOffset;
+
+          const marker = L.marker([pinLat, pinLon], {
+            icon: createCustomIcon(p.name, p.rating),
+          }).addTo(map);
+
+          marker.bindPopup(`
+            <div style="font-family: system-ui, sans-serif; padding: 2px;">
+              <strong style="font-size: 13px; color: #111;">${p.name}</strong>
+              <p style="font-size: 11px; color: #666; margin: 4px 0 0 0;">${p.address}</p>
+            </div>
+          `);
+        });
+      } catch (err) {
+        console.warn("Leaflet map initialization skipped or caught:", err);
+      }
     });
 
     return () => {
       isMounted = false;
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
+      try {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.remove();
+          mapInstanceRef.current = null;
+        }
+        if (containerRef.current) {
+          (containerRef.current as any)._leaflet_id = null;
+        }
+      } catch {}
     };
   }, [city, address, pins]);
 

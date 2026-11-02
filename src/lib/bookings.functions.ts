@@ -28,8 +28,8 @@ const bookingSchema = z.object({
 export type BookingInput = z.infer<typeof bookingSchema>;
 
 export const createBooking = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => bookingSchema.parse(input))
-  .handler(async ({ data }) => {
+  .validator((input: unknown) => bookingSchema.parse(input))
+  .handler(async ({ data }: { data: BookingInput }) => {
     const bookingId = `SS-${Date.now().toString(36).toUpperCase()}`;
     const initialStatus = data.paymentMethod === "online" ? "Paid" : "Pending Payment";
 
@@ -86,10 +86,10 @@ export const createBooking = createServerFn({ method: "POST" })
   });
 
 export const getBookingStatuses = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ ids: z.array(z.string().min(1)).max(200) }).parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data }: { data: { ids: string[] } }) => {
     const erpConfig = getERPNextConfig();
     const result: Record<string, { status: string; syncedAt: string }> = {};
 
@@ -129,8 +129,8 @@ export const getBookingStatuses = createServerFn({ method: "POST" })
   });
 
 export const cancelBooking = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({ bookingId: z.string().min(1) }).parse(input))
-  .handler(async ({ data }) => {
+  .validator((input: unknown) => z.object({ bookingId: z.string().min(1) }).parse(input))
+  .handler(async ({ data }: { data: { bookingId: string } }) => {
     const erpConfig = getERPNextConfig();
 
     if (erpConfig.isConfigured) {
@@ -145,13 +145,13 @@ export const cancelBooking = createServerFn({ method: "POST" })
   });
 
 export const sendReceiptEmail = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({
       bookingId: z.string().min(1),
       email: z.string().trim().email(),
     }).parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data }: { data: { bookingId: string; email: string } }) => {
     const erpConfig = getERPNextConfig();
 
     if (erpConfig.isConfigured) {

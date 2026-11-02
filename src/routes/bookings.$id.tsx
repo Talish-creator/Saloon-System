@@ -91,8 +91,8 @@ function ReceiptPage() {
     setLoaded(true);
     if (found) {
       getBookingStatuses({ data: { ids: [id] } })
-        .then((r) => {
-          if (r[id]) setB((prev) => (prev ? { ...prev, status: r[id].status } : prev));
+        .then((r: any) => {
+          if (r && r[id]) setB((prev) => (prev ? { ...prev, status: r[id].status } : prev));
         })
         .catch(() => {});
     }

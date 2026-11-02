@@ -48,7 +48,7 @@ export const Route = createFileRoute("/booking/$slug")({
     ],
   }),
   component: BookingPage,
-  errorComponent: ({ error }) => <div className="p-10">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-10">{(error as any)?.message ?? "An error occurred."}</div>,
   notFoundComponent: () => <div className="p-10">Venue not found.</div>,
 });
 

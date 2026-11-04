@@ -14,6 +14,7 @@ import {
   Heart,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
   Sparkles,
   ShieldCheck,
   CheckCircle2,
@@ -25,6 +26,10 @@ import {
   Zap,
   Tag,
   Share2,
+  HelpCircle,
+  Building2,
+  Gift,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { MarketplaceHeader, MarketplaceFooter, GetAppModal } from "@/components/marketplace-chrome";
@@ -62,10 +67,60 @@ const CATEGORY_CHIPS = [
   { key: "Hair & Beauty Salon", label: "Hair & Styling", icon: "✂️" },
   { key: "Day Spa & Wellness", label: "Spa & Massage", icon: "💆" },
   { key: "Nail Bar & Pedicure", label: "Nails & Pedicure", icon: "💅" },
-  { key: "Skincare & Aesthetics", label: "Facials & Skincare", icon: "🧖‍♀️" },
+  { key: "Skincare & Aesthetics", label: "Facials & Skin", icon: "🧖‍♀️" },
   { key: "Men's Barber & Grooming", label: "Barbers & Grooming", icon: "🧔" },
   { key: "Hammam & Bathhouse", label: "Hammam & Bath", icon: "🌿" },
   { key: "Massage & Reflexology", label: "Reflexology", icon: "🙌" },
+];
+
+// Trending search shortcuts
+const TRENDING_SEARCHES = [
+  { label: "Balayage & Hair Color", q: "Balayage", icon: "✂️" },
+  { label: "Deep Tissue Massage", q: "Massage", icon: "💆" },
+  { label: "HydraFacial Glow", q: "Facial", icon: "🧖‍♀️" },
+  { label: "Beard Sculpt & Fade", q: "Barber", icon: "🧔" },
+  { label: "Russian Manicure", q: "Nail", icon: "💅" },
+  { label: "Moroccan Hammam", q: "Hammam", icon: "🌿" },
+];
+
+// Curated collections
+const CURATED_COLLECTIONS = [
+  {
+    title: "Sanctuary Spas & Hammams",
+    description: "Restorative hydrotherapy, herbal steam baths & bespoke aromatherapy rituals",
+    image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&auto=format&fit=crop&q=80",
+    badge: "Restorative",
+    query: "Spa",
+    startingPrice: "from AED 220",
+    venueCount: 14,
+  },
+  {
+    title: "Master Hair Stylists",
+    description: "Creative styling lounges for precision cuts, balayage & gloss transformations",
+    image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80",
+    badge: "Haute Coiffure",
+    query: "Hair",
+    startingPrice: "from AED 160",
+    venueCount: 22,
+  },
+  {
+    title: "Aesthetic Skin & Medspas",
+    description: "Medical-grade facials, skin resurfacing & luminous glow protocols",
+    image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&auto=format&fit=crop&q=80",
+    badge: "Clinical Glow",
+    query: "Facial",
+    startingPrice: "from AED 310",
+    venueCount: 11,
+  },
+  {
+    title: "Gentlemen's Executive Grooming",
+    description: "Traditional hot-towel straight razor shaves, taper fades & beard sculpting",
+    image: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800&auto=format&fit=crop&q=80",
+    badge: "Master Barbers",
+    query: "Barber",
+    startingPrice: "from AED 85",
+    venueCount: 16,
+  },
 ];
 
 function fmtDate(offsetDays: number) {
@@ -83,6 +138,7 @@ function Marketplace() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
+  const [sortBy, setSortBy] = useState<"recommended" | "rating" | "reviews">("recommended");
   const [focusedDropdown, setFocusedDropdown] = useState<null | "treatment" | "where" | "when">(null);
 
   // App modal & map toggle
@@ -135,9 +191,9 @@ function Marketplace() {
     ? `${selectedDate || "Any date"}${selectedTime ? ` · ${selectedTime}` : ""}`
     : "Any time";
 
-  // Filtered venues based on category and search query
+  // Filtered and sorted venues
   const filteredVenues = useMemo(() => {
-    return venues.filter((v) => {
+    let result = venues.filter((v) => {
       // Category filter
       if (activeCategory !== "all") {
         const catMatch = v.category.toLowerCase().includes(activeCategory.toLowerCase());
@@ -162,7 +218,15 @@ function Marketplace() {
       }
       return true;
     });
-  }, [activeCategory, searchQuery, selectedLocation]);
+
+    if (sortBy === "rating") {
+      result = [...result].sort((a, b) => b.rating - a.rating);
+    } else if (sortBy === "reviews") {
+      result = [...result].sort((a, b) => b.reviews - a.reviews);
+    }
+
+    return result;
+  }, [activeCategory, searchQuery, selectedLocation, sortBy]);
 
   // Handle Search Execution
   const handleSearchSubmit = () => {
@@ -176,7 +240,6 @@ function Marketplace() {
         },
       });
     } else {
-      // Scroll smoothly down to the venues section
       const target = document.getElementById("venues-section");
       if (target) {
         target.scrollIntoView({ behavior: "smooth" });
@@ -185,7 +248,7 @@ function Marketplace() {
   };
 
   const handleUseCurrentLocation = () => {
-    if (navigator.geolocation) {
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
       toast.loading("Detecting your location...", { id: "geo-loc" });
       navigator.geolocation.getCurrentPosition(
         () => {
@@ -207,28 +270,38 @@ function Marketplace() {
   };
 
   const copyPromoCode = () => {
-    navigator.clipboard.writeText("GLOW20");
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText("GLOW20");
+    }
     setCopiedPromo(true);
-    toast.success("Promo code GLOW20 copied to clipboard!");
+    toast.success("Privilege code GLOW20 copied to clipboard!");
     setTimeout(() => setCopiedPromo(false), 3000);
+  };
+
+  const handleTrendingClick = (q: string) => {
+    setSearchQuery(q);
+    const target = document.getElementById("venues-section");
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const isFiltered = activeCategory !== "all" || searchQuery !== "" || selectedLocation !== "";
 
   return (
-    <div className="min-h-screen bg-stone-50/40 text-stone-900 antialiased font-sans selection:bg-stone-900 selection:text-white">
+    <div className="min-h-screen bg-stone-50/40 text-stone-900 antialiased font-sans selection:bg-stone-900 selection:text-white pb-20">
       <MarketplaceHeader />
 
       {/* ==================================================== */}
       {/* HERO SECTION                                         */}
       {/* ==================================================== */}
-      <section className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative pt-28 pb-14 sm:pt-36 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Soft Luxury Ambient Background */}
         <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-rose-50/50 via-stone-50/30 to-white" />
-          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-r from-rose-200/25 via-amber-100/25 to-indigo-100/20 rounded-full blur-3xl opacity-80" />
-          <div className="absolute top-48 -right-24 w-80 h-80 rounded-full bg-rose-100/30 blur-2xl" />
-          <div className="absolute top-48 -left-24 w-80 h-80 rounded-full bg-amber-100/30 blur-2xl" />
+          <div className="absolute inset-0 bg-gradient-to-b from-rose-50/40 via-stone-50/20 to-white" />
+          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[720px] h-[360px] bg-gradient-to-r from-rose-200/25 via-amber-100/25 to-indigo-100/20 rounded-full blur-3xl opacity-80" />
+          <div className="absolute top-44 -right-20 w-80 h-80 rounded-full bg-rose-100/30 blur-2xl" />
+          <div className="absolute top-44 -left-20 w-80 h-80 rounded-full bg-amber-100/30 blur-2xl" />
         </div>
 
         <div className="max-w-5xl mx-auto text-center">
@@ -243,14 +316,21 @@ function Marketplace() {
             <span>Discover & Book The World's Finest Salons & Spas</span>
           </motion.div>
 
-          {/* Headline */}
+          {/* Headline with Editorial Font Pairing */}
           <motion.h1
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.05 }}
             className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-stone-900 leading-[1.08]"
           >
-            Book local selfcare services
+            Book local{" "}
+            <span
+              className="font-serif italic font-normal text-stone-900"
+              style={{ fontFamily: "'Instrument Serif', serif" }}
+            >
+              selfcare
+            </span>{" "}
+            services
           </motion.h1>
 
           {/* Subtitle */}
@@ -454,40 +534,37 @@ function Marketplace() {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
-                  className="absolute z-40 left-0 right-0 md:left-1/4 md:w-[420px] top-full mt-3 bg-white rounded-3xl shadow-2xl border border-stone-100 p-4 text-left"
+                  className="absolute z-40 left-0 right-0 md:left-1/3 md:w-[380px] top-full mt-3 bg-white rounded-3xl shadow-2xl border border-stone-100 p-4 text-left"
                 >
                   <button
                     onClick={handleUseCurrentLocation}
-                    className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-stone-50 hover:bg-stone-100 transition mb-3"
+                    className="w-full flex items-center gap-3 p-3 rounded-2xl bg-stone-50 hover:bg-stone-100 text-stone-900 font-semibold text-xs sm:text-sm transition mb-3"
                   >
-                    <div className="grid place-items-center h-8 w-8 rounded-full bg-stone-900 text-white shrink-0">
+                    <div className="h-8 w-8 rounded-full bg-white grid place-items-center shadow-2xs text-stone-700">
                       <Navigation2 className="h-4 w-4" />
                     </div>
-                    <div className="text-left">
-                      <div className="text-sm font-bold text-stone-900">Current location</div>
-                      <div className="text-xs text-stone-500">Detect via browser GPS</div>
-                    </div>
+                    <span>Use current location (GPS)</span>
                   </button>
 
                   <div className="text-[11px] font-bold uppercase tracking-wider text-stone-400 px-2 mb-2">
-                    Popular GCC & Global Cities
+                    Top Cities in Region
                   </div>
 
-                  <div className="flex flex-wrap gap-1.5 px-2 pb-2">
-                    {["Dubai", "Abu Dhabi", "Riyadh", "Jeddah", "Doha", "Kuwait City", "Muscat", "London"].map((c) => (
+                  <div className="max-h-60 overflow-y-auto space-y-1">
+                    {cities.map((city) => (
                       <button
-                        key={c}
+                        key={city}
                         onClick={() => {
-                          setSelectedLocation(c);
+                          setSelectedLocation(city);
                           setFocusedDropdown(null);
                         }}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-                          selectedLocation === c
-                            ? "bg-stone-900 text-white border-stone-900"
-                            : "bg-white text-stone-700 border-stone-200 hover:bg-stone-50"
-                        }`}
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-stone-50 text-xs sm:text-sm font-medium text-stone-800 transition"
                       >
-                        {c}
+                        <span className="flex items-center gap-2">
+                          <MapPin className="h-3.5 w-3.5 text-stone-400" />
+                          {city}
+                        </span>
+                        <span className="text-[10px] text-stone-400 uppercase tracking-wider">Explore</span>
                       </button>
                     ))}
                   </div>
@@ -504,49 +581,56 @@ function Marketplace() {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
-                  className="absolute z-40 left-0 right-0 md:left-auto md:right-4 md:w-[500px] top-full mt-3 bg-white rounded-3xl shadow-2xl border border-stone-100 p-5 text-left"
+                  className="absolute z-40 right-0 left-0 md:left-auto md:w-[380px] top-full mt-3 bg-white rounded-3xl shadow-2xl border border-stone-100 p-5 text-left"
                 >
-                  <div className="grid md:grid-cols-[160px_1fr] gap-4">
-                    {/* Quick presets */}
-                    <div className="flex md:flex-col gap-2">
-                      {[
-                        { k: "any", label: "Any time", sub: "Flexible schedule" },
-                        { k: "today", label: "Today", sub: fmtDate(0) },
-                        { k: "tomorrow", label: "Tomorrow", sub: fmtDate(1) },
-                      ].map((preset) => (
-                        <button
-                          key={preset.k}
-                          onClick={() => {
-                            if (preset.k === "any") {
-                              setSelectedDate("");
-                              setSelectedTime("");
-                            } else {
-                              setSelectedDate(preset.label);
-                            }
-                          }}
-                          className={`flex-1 rounded-2xl border px-3.5 py-2.5 text-left transition ${
-                            (preset.k === "any" && !selectedDate) || selectedDate === preset.label
-                              ? "border-stone-900 bg-stone-100 text-stone-900 font-bold"
-                              : "border-stone-200 hover:bg-stone-50 text-stone-700"
-                          }`}
-                        >
-                          <div className="text-xs font-bold">{preset.label}</div>
-                          <div className="text-[11px] text-stone-500">{preset.sub}</div>
-                        </button>
-                      ))}
+                  {/* Quick Days */}
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                    {[
+                      { k: "any", label: "Any time", sub: "Flexible" },
+                      { k: "today", label: "Today", sub: fmtDate(0) },
+                      { k: "tomorrow", label: "Tomorrow", sub: fmtDate(1) },
+                    ].map((opt) => (
+                      <button
+                        key={opt.k}
+                        onClick={() => {
+                          if (opt.k === "any") {
+                            setSelectedDate("");
+                          } else if (opt.k === "today") {
+                            setSelectedDate("Today");
+                          } else {
+                            setSelectedDate("Tomorrow");
+                          }
+                        }}
+                        className={`p-2.5 rounded-2xl border text-center transition ${
+                          (opt.k === "any" && !selectedDate) ||
+                          (opt.k === "today" && selectedDate === "Today") ||
+                          (opt.k === "tomorrow" && selectedDate === "Tomorrow")
+                            ? "bg-stone-900 text-white border-stone-900 shadow-xs"
+                            : "border-stone-200 hover:bg-stone-50 text-stone-800"
+                        }`}
+                      >
+                        <div className="text-xs font-bold">{opt.label}</div>
+                        <div className="text-[10px] opacity-70 mt-0.5">{opt.sub}</div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Calendar Matrix */}
+                  <div className="pt-2 border-t border-stone-100">
+                    <div className="flex items-center justify-between text-xs font-bold text-stone-900 mb-2">
+                      <span>{calendar.monthName} {calendar.year}</span>
                     </div>
 
-                    {/* Month mini calendar */}
-                    <div>
-                      <div className="text-xs font-bold text-stone-900 mb-2">
-                        {calendar.monthName} {calendar.year}
-                      </div>
-                      <div className="grid grid-cols-7 gap-1 text-center text-xs">
-                        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-                          <div key={day} className="text-[10px] font-bold text-stone-400 py-1">
+                    <div className="space-y-1">
+                      <div className="grid grid-cols-7 text-center text-[10px] font-bold text-stone-400">
+                        {["S", "M", "T", "W", "T", "F", "S"].map((day, idx) => (
+                          <div key={idx} className="h-6 flex items-center justify-center">
                             {day}
                           </div>
                         ))}
+                      </div>
+
+                      <div className="grid grid-cols-7 gap-1">
                         {calendar.cells.map((d, i) => {
                           const isToday = d === calendar.todayDate;
                           const isPast = d != null && d < calendar.todayDate;
@@ -616,12 +700,34 @@ function Marketplace() {
             </AnimatePresence>
           </motion.div>
 
+          {/* Quick Trending Searches Bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22, duration: 0.5 }}
+            className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs text-stone-500"
+          >
+            <span className="font-semibold text-stone-400 uppercase tracking-wider text-[10px]">
+              Trending:
+            </span>
+            {TRENDING_SEARCHES.map((t) => (
+              <button
+                key={t.label}
+                onClick={() => handleTrendingClick(t.q)}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 border border-stone-200 hover:border-stone-400 hover:bg-white text-stone-700 transition shadow-2xs"
+              >
+                <span>{t.icon}</span>
+                <span>{t.label}</span>
+              </button>
+            ))}
+          </motion.div>
+
           {/* Social Proof & App Trigger Pill */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.28, duration: 0.5 }}
-            className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-stone-600"
+            className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-stone-600"
           >
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-stone-200/80 shadow-2xs">
               <span className="relative flex h-2 w-2">
@@ -653,6 +759,11 @@ function Marketplace() {
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
             {CATEGORY_CHIPS.map((chip) => {
               const active = activeCategory === chip.key;
+              const count =
+                chip.key === "all"
+                  ? venues.length
+                  : venues.filter((v) => v.category.toLowerCase().includes(chip.key.toLowerCase())).length;
+
               return (
                 <button
                   key={chip.key}
@@ -665,6 +776,13 @@ function Marketplace() {
                 >
                   <span className="text-sm">{chip.icon}</span>
                   <span>{chip.label}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                      active ? "bg-white/20 text-white" : "bg-stone-100 text-stone-500"
+                    }`}
+                  >
+                    {count}
+                  </span>
                 </button>
               );
             })}
@@ -673,9 +791,68 @@ function Marketplace() {
       </section>
 
       {/* ==================================================== */}
+      {/* CURATED EDITORIAL COLLECTIONS (NEW)                  */}
+      {/* ==================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        <div className="mb-6">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-2">
+            <Sparkles className="h-3 w-3 text-amber-500" />
+            Curated Collections
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900">
+            Hand-picked for your selfcare rituals
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-500 mt-1">
+            Explore exclusive edits curated by our beauty editors and wellness directors.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {CURATED_COLLECTIONS.map((col) => (
+            <div
+              key={col.title}
+              onClick={() => handleTrendingClick(col.query)}
+              className="group cursor-pointer rounded-3xl overflow-hidden bg-white border border-stone-200 shadow-2xs hover:shadow-xl hover:border-stone-400 transition-all duration-300 flex flex-col justify-between"
+            >
+              <div className="relative aspect-[16/10] overflow-hidden bg-stone-100">
+                <img
+                  src={col.image}
+                  alt={col.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <span className="absolute top-3 left-3 bg-stone-900/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-xs">
+                  {col.badge}
+                </span>
+                <span className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md text-stone-900 text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-2xs">
+                  {col.venueCount} studios
+                </span>
+              </div>
+              <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-base font-bold text-stone-900 group-hover:text-stone-600 transition">
+                    {col.title}
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-1 line-clamp-2 leading-relaxed">
+                    {col.description}
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-xs">
+                  <span className="font-semibold text-stone-800">{col.startingPrice}</span>
+                  <span className="inline-flex items-center gap-1 font-bold text-stone-900 group-hover:translate-x-0.5 transition-transform">
+                    Explore <ChevronRight className="h-3.5 w-3.5" />
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ==================================================== */}
       {/* EDITORIAL PROMOTIONAL PRIVILEGE BANNER               */}
       {/* ==================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 text-white p-6 sm:p-8 lg:p-10 shadow-xl">
           <div className="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-rose-500/15 blur-3xl pointer-events-none" />
           <div className="absolute -left-12 -bottom-12 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
@@ -712,8 +889,8 @@ function Marketplace() {
       {/* ==================================================== */}
       {/* ACTIVE FILTERS & MAP TOGGLE BAR                      */}
       {/* ==================================================== */}
-      <div id="venues-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-stone-200">
+      <div id="venues-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-stone-200">
           <div>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900">
               {activeCategory === "all"
@@ -725,7 +902,22 @@ function Marketplace() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center flex-wrap gap-2.5">
+            {/* Sort Dropdown */}
+            <div className="flex items-center gap-1.5 text-xs text-stone-600 bg-white border border-stone-200 rounded-full px-3 py-1.5 shadow-2xs">
+              <SlidersHorizontal className="h-3.5 w-3.5 text-stone-400" />
+              <span className="hidden sm:inline">Sort:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="bg-transparent font-semibold text-stone-900 focus:outline-hidden cursor-pointer"
+              >
+                <option value="recommended">Recommended</option>
+                <option value="rating">Top Rated ★</option>
+                <option value="reviews">Most Reviewed</option>
+              </select>
+            </div>
+
             {isFiltered && (
               <button
                 onClick={() => {
@@ -819,7 +1011,7 @@ function Marketplace() {
         />
 
         {/* Popular Treatments Grid */}
-        <PopularTreatmentsSection />
+        <PopularTreatmentsSection onSelectTreatment={handleTrendingClick} />
 
         {/* New to Saloon System Row */}
         <LuxuryVenueRow
@@ -837,6 +1029,12 @@ function Marketplace() {
         {/* Customer Testimonials Carousel */}
         <TestimonialsSection />
 
+        {/* Frequently Asked Questions */}
+        <FaqSection />
+
+        {/* Business Partner Growth Callout */}
+        <BusinessGrowthBanner />
+
         {/* Browse by City & Regional Directory */}
         <BrowseByCitySection
           activeCountry={activeCountry}
@@ -847,6 +1045,27 @@ function Marketplace() {
         {/* Mobile App Download Banner */}
         <AppShowcaseSection onOpenAppModal={() => setShowAppModal(true)} />
       </main>
+
+      {/* Floating Map Toggle Capsule */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
+        <button
+          onClick={() => {
+            setShowMap((prev) => {
+              const next = !prev;
+              if (next) {
+                setTimeout(() => {
+                  document.getElementById("venues-section")?.scrollIntoView({ behavior: "smooth" });
+                }, 100);
+              }
+              return next;
+            });
+          }}
+          className="group flex items-center gap-2.5 rounded-full bg-stone-900 text-white px-5 py-3 text-xs sm:text-sm font-bold shadow-2xl hover:bg-stone-800 transition active:scale-95 border border-stone-700/60"
+        >
+          <Map className="h-4 w-4 text-rose-400 group-hover:scale-110 transition-transform" />
+          <span>{showMap ? "Hide Map View" : `Map View (${filteredVenues.length})`}</span>
+        </button>
+      </div>
 
       {/* App QR Modal */}
       <GetAppModal open={showAppModal} onClose={() => setShowAppModal(false)} />
@@ -933,7 +1152,7 @@ function LuxuryVenueRow({
           return (
             <div
               key={v.slug + i}
-              className="group shrink-0 snap-start w-[84%] sm:w-[46%] lg:w-[calc((100%-60px)/4)] flex flex-col rounded-3xl bg-white border border-stone-200/90 hover:border-stone-300 shadow-2xs hover:shadow-md transition-all duration-300 overflow-hidden"
+              className="group shrink-0 snap-start w-[84%] sm:w-[46%] lg:w-[calc((100%-60px)/4)] flex flex-col rounded-3xl bg-white border border-stone-200/90 hover:border-stone-400 hover:shadow-xl transition-all duration-300 overflow-hidden"
             >
               {/* Image & Badges Container */}
               <div className="relative aspect-[4/3] overflow-hidden bg-stone-100">
@@ -1017,7 +1236,7 @@ function LuxuryVenueRow({
                 {/* Book Now Button */}
                 <div className="mt-4 pt-1">
                   <Link
-                    to="/venue/$slug"
+                    to="/booking/$slug"
                     params={{ slug: v.slug }}
                     className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-stone-900 py-2.5 text-xs font-semibold text-white hover:bg-stone-800 transition active:scale-98 shadow-2xs"
                   >
@@ -1037,7 +1256,7 @@ function LuxuryVenueRow({
 // ----------------------------------------------------
 // POPULAR TREATMENTS GRID
 // ----------------------------------------------------
-function PopularTreatmentsSection() {
+function PopularTreatmentsSection({ onSelectTreatment }: { onSelectTreatment: (q: string) => void }) {
   const topServices = [
     { title: "Haircut & Blow Dry", time: "45 mins", price: "from AED 120", emoji: "✂️", q: "Haircut" },
     { title: "Hot Stone & Aromatherapy", time: "60 mins", price: "from AED 220", emoji: "💆", q: "Spa" },
@@ -1061,11 +1280,10 @@ function PopularTreatmentsSection() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
           {topServices.map((service) => (
-            <Link
+            <div
               key={service.title}
-              to="/search"
-              search={{ q: service.q }}
-              className="group flex items-center justify-between p-4 rounded-2xl bg-white border border-stone-200 hover:border-stone-400 hover:shadow-sm transition"
+              onClick={() => onSelectTreatment(service.q)}
+              className="group cursor-pointer flex items-center justify-between p-4 rounded-2xl bg-white border border-stone-200 hover:border-stone-400 hover:shadow-sm transition"
             >
               <div className="flex items-center gap-3.5 min-w-0">
                 <span className="grid place-items-center h-11 w-11 rounded-2xl bg-stone-50 border border-stone-100 text-xl shrink-0 group-hover:scale-105 transition">
@@ -1083,7 +1301,7 @@ function PopularTreatmentsSection() {
                 </div>
               </div>
               <ChevronRight className="h-4 w-4 text-stone-400 group-hover:text-stone-900 group-hover:translate-x-0.5 transition" />
-            </Link>
+            </div>
           ))}
         </div>
       </div>
@@ -1217,6 +1435,141 @@ function TestimonialsSection() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ----------------------------------------------------
+// FREQUENTLY ASKED QUESTIONS ACCORDION (NEW)
+// ----------------------------------------------------
+function FaqSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const faqs = [
+    {
+      q: "How does booking through Saloon System work?",
+      a: "Saloon System directly integrates with each partner venue's real-time appointment book. When you select a treatment, date, and time slot, your booking is confirmed instantaneously on the salon's calendar — no waiting for phone calls or callbacks.",
+    },
+    {
+      q: "Can I cancel or reschedule my appointment for free?",
+      a: "Yes. All verified venues on Saloon System allow free cancellation and rescheduling up to 24 hours prior to your scheduled start time. You can make adjustments with a single tap from your My Bookings dashboard.",
+    },
+    {
+      q: "Are the client reviews and ratings authentic?",
+      a: "100%. Only clients who have completed an appointment through Saloon System can submit a verified review and rating. We do not permit unverified or incentivized reviews, ensuring complete transparency.",
+    },
+    {
+      q: "How and when do I pay for my appointment?",
+      a: "Depending on the venue's policy, you can pay online securely with credit card / Apple Pay during checkout, or choose 'Pay at venue' on the day of your service. Your privilege coupon (e.g., GLOW20) applies automatically at checkout.",
+    },
+    {
+      q: "Can I book multiple services or book for a friend?",
+      a: "Absolutely. During checkout, you can add companion treatments (such as a blow-dry or manicure) or specify guest details if the selfcare experience is a gift for someone special.",
+    },
+  ];
+
+  return (
+    <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-700 text-xs font-semibold mb-3">
+          <HelpCircle className="h-3.5 w-3.5 text-stone-500" />
+          <span>Got Questions?</span>
+        </div>
+        <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900">
+          Frequently Asked Questions
+        </h3>
+        <p className="text-xs sm:text-sm text-stone-500 mt-1.5">
+          Everything you need to know about booking appointments on Saloon System.
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        {faqs.map((faq, idx) => {
+          const isOpen = openIndex === idx;
+          return (
+            <div
+              key={idx}
+              className="rounded-2xl border border-stone-200/90 bg-white overflow-hidden transition-all duration-200 shadow-2xs hover:border-stone-300"
+            >
+              <button
+                onClick={() => setOpenIndex(isOpen ? null : idx)}
+                className="w-full flex items-center justify-between p-4 sm:p-5 text-left text-sm sm:text-base font-bold text-stone-900 transition hover:bg-stone-50/70"
+                aria-expanded={isOpen}
+              >
+                <span>{faq.q}</span>
+                <ChevronDown
+                  className={`h-4 w-4 text-stone-500 transition-transform duration-200 shrink-0 ml-4 ${
+                    isOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 sm:px-5 pb-5 pt-1 text-xs sm:text-sm text-stone-600 leading-relaxed border-t border-stone-100">
+                      {faq.a}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+// ----------------------------------------------------
+// BUSINESS GROWTH BANNER (NEW)
+// ----------------------------------------------------
+function BusinessGrowthBanner() {
+  return (
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="rounded-3xl bg-gradient-to-r from-stone-900 via-zinc-900 to-stone-900 border border-stone-800 text-white p-8 sm:p-12 relative overflow-hidden shadow-2xl">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-80 h-80 rounded-full bg-rose-500/10 blur-3xl pointer-events-none" />
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-8 space-y-3">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider text-amber-300">
+              <Building2 className="h-3.5 w-3.5" />
+              For Salon, Spa & Clinic Owners
+            </div>
+            <h3 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+              Grow your beauty business with Saloon System for Business
+            </h3>
+            <p className="text-xs sm:text-sm text-stone-300 max-w-2xl leading-relaxed">
+              Join 130,000+ top salons, barbershops and wellness centers worldwide. Get listed on the world’s most visited selfcare marketplace, automate client reminders, accept upfront payments, and eliminate no-shows.
+            </p>
+            <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-stone-300">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Free to get started
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-400" /> 24/7 calendar sync
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Dedicated POS & reporting
+              </span>
+            </div>
+          </div>
+          <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-3">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 rounded-2xl bg-white text-stone-900 px-6 py-3.5 text-xs sm:text-sm font-bold hover:bg-stone-100 transition shadow-lg active:scale-98"
+            >
+              <span>List your business</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <span className="text-[11px] text-stone-400">Takes less than 3 minutes to register</span>
+          </div>
         </div>
       </div>
     </section>
